@@ -1,0 +1,49 @@
+// This is your Prisma schema file.
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model PayrollRun {
+  id          String   @id
+  company     String
+  month       String
+  employees   Int
+  totalAmount String
+  status      String   // draft, approval_in_progress, approved, submitted
+  lastUpdated String
+}
+
+model AuditLog {
+  id      Int    @id @default(autoincrement())
+  date    String
+  user    String
+  action  String
+  details String
+  entity  String
+  month   String
+}
+
+model DQIssue {
+  id          String @id
+  type        String
+  severity    String // Critical, High, Medium, Low
+  employee    String
+  entity      String
+  description String
+}
+
+model OrgUnit {
+  id            Int     @id @default(autoincrement())
+  region        String
+  country       String
+  legalEntity   String
+  reportingUnit String
+  active        Boolean @default(true)
+}

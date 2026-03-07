@@ -66,6 +66,9 @@ export default function History() {
                             <label className="block text-sm font-medium text-gray-700 mb-1">Period</label>
                             <select className="w-full border border-gray-200 rounded-lg p-2 text-sm mb-4 outline-none focus:ring-2 focus:ring-blue-500" value={filterPeriod} title="Period" onChange={e => setFilterPeriod(e.target.value)}>
                                 <option value="">All Periods</option>
+                                <option value="October 2025">October 2025</option>
+                                <option value="November 2025">November 2025</option>
+                                <option value="December 2025">December 2025</option>
                                 <option value="January 2026">January 2026</option>
                                 <option value="February 2026">February 2026</option>
                                 <option value="March 2026">March 2026</option>

@@ -40,6 +40,9 @@ export default function Dashboard() {
                     onChange={(e) => setMonth(e.target.value)}
                     className="bg-white border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 shadow-sm font-medium w-48"
                 >
+                    <option value="October 2025">October 2025</option>
+                    <option value="November 2025">November 2025</option>
+                    <option value="December 2025">December 2025</option>
                     <option value="January 2026">January 2026</option>
                     <option value="February 2026">February 2026</option>
                     <option value="March 2026">March 2026</option>

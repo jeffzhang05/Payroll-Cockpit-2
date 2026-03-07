@@ -1,114 +1,116 @@
 import express from 'express';
 import cors from 'cors';
+import { PrismaClient } from '@prisma/client';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Root Route (Sanity Check)
+app.get('/', (req, res) => {
+    res.json({ message: 'Payroll Cockpit Backend API is running! 🚀' });
+});
+
+const prisma = new PrismaClient();
+
 const PORT = process.env.PORT || 3000;
 
-// Mock Data
-let payrollRuns = [
-    { id: 'PAY-001', company: 'Global Tech Corp', month: 'February 2026', employees: 1250, totalAmount: '$5,240,000', status: 'approval_in_progress', lastUpdated: new Date().toISOString() },
-    { id: 'PAY-002', company: 'Acme EMEA', month: 'February 2026', employees: 840, totalAmount: '€3,100,000', status: 'draft', lastUpdated: new Date().toISOString() },
-    { id: 'PAY-003', company: 'Acme APAC', month: 'February 2026', employees: 2100, totalAmount: '$4,800,000', status: 'approved', lastUpdated: new Date().toISOString() },
-    { id: 'PAY-005', company: 'Wayne Enterprises', month: 'February 2026', employees: 320, totalAmount: '$1,500,000', status: 'draft', lastUpdated: new Date().toISOString() }
-];
-
-let auditLogs = [
-    { id: 1, date: '2026-02-27 10:30 AM', user: 'jane.doe@company.com', entity: 'Acme APAC', month: 'February 2026', action: 'Initiated Email Approval', details: 'Sent approval request to Finance Director' },
-    { id: 2, date: '2026-02-26 04:15 PM', user: 'system_ec_sync', entity: 'Acme APAC', month: 'February 2026', action: 'Data Import', details: 'Synced 2100 employee records from EC Payroll' },
-];
-
-let dqIssues = [
-    { id: 'DQ-101', type: 'Missing Bank Details', severity: 'High', employee: 'E10452', entity: 'Acme EMEA', description: 'IBAN missing for new hire' },
-    { id: 'DQ-102', type: 'Negative Net Pay', severity: 'Critical', employee: 'E09381', entity: 'Global Tech Corp', description: 'Deductions exceed gross pay' },
-    { id: 'DQ-103', type: 'Unusual Overtime', severity: 'Medium', employee: 'E11200', entity: 'Acme APAC', description: 'Overtime > 50% of standard hours' }
-];
-
-let orgUnits = [
-    { id: 1, region: 'Americas', country: 'United States', legalEntity: 'Global Tech US LLC', reportingUnit: 'US-East Operations', active: true },
-    { id: 2, region: 'Americas', country: 'United States', legalEntity: 'Global Tech US LLC', reportingUnit: 'US-West Operations', active: true },
-    { id: 3, region: 'EMEA', country: 'Germany', legalEntity: 'Acme GmbH', reportingUnit: 'Berlin HQ', active: true },
-    { id: 4, region: 'APAC', country: 'Singapore', legalEntity: 'Acme APAC Pte Ltd', reportingUnit: 'SG Sales', active: true },
-];
-
 // Connection Check
-app.get('/api/connection-status', (req, res) => {
-    res.json({ connected: true, system: 'EC Payroll (Mock)' });
+app.get('/api/connection-status', async (req, res) => {
+    try {
+        await prisma.$queryRaw`SELECT 1`;
+        res.json({ connected: true, system: 'Database (SQLite via Prisma)' });
+    } catch (e) {
+        res.status(500).json({ connected: false, system: 'Database Offline' });
+    }
 });
 
 // APIs
-app.get('/api/payroll-runs', (req, res) => {
+app.get('/api/payroll-runs', async (req, res) => {
     const { month } = req.query;
-    const filtered = month ? payrollRuns.filter(r => r.month === month) : payrollRuns;
-    res.json(filtered);
+    const runs = await prisma.payrollRun.findMany({
+        where: month ? { month: month.toString() } : undefined,
+        orderBy: { lastUpdated: 'desc' }
+    });
+    res.json(runs);
 });
 
-app.get('/api/payroll-runs/:id', (req, res) => {
-    const run = payrollRuns.find(r => r.id === req.params.id);
+app.get('/api/payroll-runs/:id', async (req, res) => {
+    const run = await prisma.payrollRun.findUnique({ where: { id: req.params.id } });
     if (!run) return res.status(404).json({ error: 'Not found' });
     res.json(run);
 });
 
-app.patch('/api/payroll-runs/:id/status', (req, res) => {
+app.patch('/api/payroll-runs/:id/status', async (req, res) => {
     const { action } = req.body;
-    const idx = payrollRuns.findIndex(r => r.id === req.params.id);
-    if (idx === -1) return res.status(404).json({ error: 'Not found' });
 
-    const run = payrollRuns[idx];
+    const run = await prisma.payrollRun.findUnique({ where: { id: req.params.id } });
+    if (!run) return res.status(404).json({ error: 'Not found' });
+
     let newStatus = run.status;
-
     if (action === 'request_approval' && run.status === 'draft') newStatus = 'approval_in_progress';
     else if (action === 'approve' && run.status === 'approval_in_progress') newStatus = 'approved';
     else if (action === 'force_approve' && run.status === 'approval_in_progress') newStatus = 'approved';
     else if (action === 'release' && run.status === 'approved') newStatus = 'submitted';
     else if (action === 'reject' && run.status === 'approval_in_progress') newStatus = 'draft';
 
-    run.status = newStatus;
-    run.lastUpdated = new Date().toISOString();
-    // Auto-log
-    auditLogs.unshift({
-        id: Date.now(),
-        date: new Date().toISOString(),
-        user: 'system@mock.local',
-        entity: run.company,
-        month: run.month,
-        action: 'Status Change',
-        details: `Triggered action: ${action}`
+    const updatedRun = await prisma.payrollRun.update({
+        where: { id: req.params.id },
+        data: { status: newStatus, lastUpdated: new Date().toISOString() }
     });
 
-    res.json(run);
+    // Auto-log
+    await prisma.auditLog.create({
+        data: {
+            date: new Date().toISOString(),
+            user: 'system@mock.local',
+            entity: run.company,
+            month: run.month,
+            action: 'Status Change',
+            details: `Triggered action: ${action}`
+        }
+    });
+
+    res.json(updatedRun);
 });
 
-app.get('/api/audit-log', (req, res) => {
-    res.json(auditLogs);
+app.get('/api/audit-log', async (req, res) => {
+    const logs = await prisma.auditLog.findMany({ orderBy: { id: 'desc' } });
+    res.json(logs);
 });
 
-app.get('/api/dq-issues', (req, res) => {
-    res.json(dqIssues);
+app.get('/api/dq-issues', async (req, res) => {
+    const issues = await prisma.dQIssue.findMany();
+    res.json(issues);
 });
 
-app.post('/api/dq-issues/sync', (req, res) => {
-    // Mock just resends the same issues 
-    res.json({ message: 'Sync successful', count: dqIssues.length });
+app.post('/api/dq-issues/sync', async (req, res) => {
+    const count = await prisma.dQIssue.count();
+    res.json({ message: 'Sync successful', count });
 });
 
-app.get('/api/org-units', (req, res) => {
-    res.json(orgUnits.filter(o => o.active));
+app.get('/api/org-units', async (req, res) => {
+    const units = await prisma.orgUnit.findMany({ where: { active: true } });
+    res.json(units);
 });
 
-app.post('/api/org-units', (req, res) => {
-    const newUnit = { id: Date.now(), active: true, ...req.body };
-    orgUnits.push(newUnit);
+app.post('/api/org-units', async (req, res) => {
+    const newUnit = await prisma.orgUnit.create({
+        data: { ...req.body, active: true }
+    });
     res.json(newUnit);
 });
 
-app.patch('/api/org-units/:id/deactivate', (req, res) => {
-    const unit = orgUnits.find(o => o.id === parseInt(req.params.id));
-    if (!unit) return res.status(404).json({ error: 'Not found' });
-    unit.active = false;
-    res.json(unit);
+app.patch('/api/org-units/:id/deactivate', async (req, res) => {
+    try {
+        const unit = await prisma.orgUnit.update({
+            where: { id: parseInt(req.params.id) },
+            data: { active: false }
+        });
+        res.json(unit);
+    } catch {
+        res.status(404).json({ error: 'Not found' });
+    }
 });
 
 app.listen(PORT, () => console.log(`[Link Phase] Mock Server running on http://localhost:${PORT}`));

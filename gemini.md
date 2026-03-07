@@ -62,7 +62,7 @@ This file serves as the definitive source for data boundaries, API payloads, and
 
 ### 1. Operations
 - **Frontend Startup**: `cd frontend && npm run dev`
-- **Backend Startup**: `cd backend && npx tsx server.ts`
+- **Backend Startup**: `cd backend && npx tsx watch server.ts`
 - **Port Definitions**: Frontend (`http://localhost:5173`), Backend (`http://localhost:3000`)
 
 ### 2. Architecture Enforcements (A.N.T.)
@@ -72,6 +72,6 @@ This file serves as the definitive source for data boundaries, API payloads, and
 
 ### 3. Future Implementations (Post-MVP)
 - Implement actual `@sap/cloud-sdk-vdm-ec-payroll-service` using the BTP Cloud SDK.
-- Switch `backend/server.ts` from hardcoded SQLite/array endpoints to a real Prisma + PostgreSQL connection (`.env` keys required).
+- Switch `backend/prisma/schema.prisma` from SQLite to a real PostgreSQL connection (`.env` keys required) for enterprise deployment.
 - Augment `useAuditStore` with pagination if Historical Log scales beyond MVP scope.
 - Enforce full RBAC (Role-Based Access Control) across SAP xsuaa tokens before removing `mock` labels.
