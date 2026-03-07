@@ -56,4 +56,22 @@ This file serves as the definitive source for data boundaries, API payloads, and
 ```
 
 ## Maintenance Log
-(To be updated during long-term stability)
+
+**Project Goal**: Deterministic, self-healing automation using B.L.A.S.T protocol.
+**Last Updated**: March 2026
+
+### 1. Operations
+- **Frontend Startup**: `cd frontend && npm run dev`
+- **Backend Startup**: `cd backend && npx tsx server.ts`
+- **Port Definitions**: Frontend (`http://localhost:5173`), Backend (`http://localhost:3000`)
+
+### 2. Architecture Enforcements (A.N.T.)
+- **Layer 1 (Architecture)**: All logic and layouts are strictly mapped in `architecture/01_frontend_sops.md`. Any future modifications to component structures or workflows **must** explicitly update this SOP file first.
+- **Layer 2 (Navigation)**: Do not mutate React state directly inside UI blocks. All data-driven payloads flow through `frontend/src/store/index.ts` via Zustand. Wait for the `await` completion of store actions before firing a `Toast`.
+- **Layer 3 (Tools)**: `api/client.ts` enforces strongly-typed `RequestInit` promises to `http://localhost:3000`. Wait for the Promise array before pushing data. The `tools/verify_link.py` script is available to auto-audit connectivity to SAP SuccessFactors (EC Payroll) mock server.
+
+### 3. Future Implementations (Post-MVP)
+- Implement actual `@sap/cloud-sdk-vdm-ec-payroll-service` using the BTP Cloud SDK.
+- Switch `backend/server.ts` from hardcoded SQLite/array endpoints to a real Prisma + PostgreSQL connection (`.env` keys required).
+- Augment `useAuditStore` with pagination if Historical Log scales beyond MVP scope.
+- Enforce full RBAC (Role-Based Access Control) across SAP xsuaa tokens before removing `mock` labels.
