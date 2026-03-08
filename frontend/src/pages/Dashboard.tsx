@@ -8,6 +8,7 @@ import { Info, RefreshCw, CheckCircle2, Database, Building2, Search, Mail, Eye }
 export default function Dashboard() {
     const { currentMonth, setMonth, payrollRuns, fetchPayrollRuns } = useAppStore();
     const [search, setSearch] = useState('');
+    const [statusFilter, setStatusFilter] = useState<string | null>(null);
     const [selectedRun, setSelectedRun] = useState<PayrollRun | null>(null);
 
     useEffect(() => {
@@ -15,10 +16,12 @@ export default function Dashboard() {
     }, [currentMonth, fetchPayrollRuns]);
 
     const filteredRuns = useMemo(() => {
-        return payrollRuns.filter(run =>
-            run.company.toLowerCase().includes(search.toLowerCase())
-        );
-    }, [payrollRuns, search]);
+        return payrollRuns.filter(run => {
+            const matchesSearch = run.company.toLowerCase().includes(search.toLowerCase());
+            const matchesStatus = statusFilter ? run.status === statusFilter : true;
+            return matchesSearch && matchesStatus;
+        });
+    }, [payrollRuns, search, statusFilter]);
 
     const stats = useMemo(() => ({
         draft: payrollRuns.filter(r => r.status === 'draft').length,
@@ -49,43 +52,118 @@ export default function Dashboard() {
                 </select>
             </div>
 
-            <div className="grid grid-cols-4 gap-6 mb-8">
-                <div className="bg-white rounded-xl p-6 shadow-sm border border-l-4 border-gray-100 border-l-blue-500 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all">
-                    <div className="flex justify-between items-start mb-4">
-                        <span className="text-sm font-semibold text-gray-500 tracking-wide uppercase">Draft & DQ Check</span>
-                        <div className="p-2 bg-blue-50 rounded-lg text-blue-600"><Info size={20} /></div>
-                    </div>
-                    <span className="text-4xl font-black text-gray-900">{stats.draft}</span>
-                </div>
+            <nav aria-label="Progress" className="mb-8 animate-in slide-in-from-bottom-4 duration-700">
+                <ol role="list" className="divide-y divide-gray-100 rounded-2xl border border-gray-100 md:flex md:divide-y-0 shadow-sm bg-white overflow-hidden">
 
-                <div className="bg-white rounded-xl p-6 shadow-sm border border-l-4 border-gray-100 border-l-orange-500 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all">
-                    <div className="flex justify-between items-start mb-4">
-                        <span className="text-sm font-semibold text-gray-500 tracking-wide uppercase w-2/3 leading-tight">Approval In Progress</span>
-                        <div className="p-2 bg-orange-50 rounded-lg text-orange-600"><RefreshCw size={20} /></div>
-                    </div>
-                    <span className="text-4xl font-black text-gray-900">{stats.approval_in_progress}</span>
-                </div>
+                    {/* Stage 1: Draft */}
+                    <li
+                        onClick={() => setStatusFilter(statusFilter === 'draft' ? null : 'draft')}
+                        className={`relative md:flex md:flex-1 transition-all cursor-pointer group ${statusFilter === 'draft' ? 'bg-blue-50/80 shadow-inner' : 'hover:bg-blue-50/40'} ${statusFilter && statusFilter !== 'draft' ? 'opacity-40 grayscale' : ''}`}
+                    >
+                        <div className="flex items-center px-6 py-5 w-full">
+                            <div className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl transition-all shadow-sm duration-300 ${statusFilter === 'draft' ? 'bg-blue-600 text-white scale-110' : 'bg-blue-100 text-blue-600 group-hover:bg-blue-500 group-hover:text-white'}`}>
+                                <Info size={24} />
+                            </div>
+                            <div className="ml-4 flex flex-col justify-center">
+                                <div className="flex items-center gap-3 mb-0.5">
+                                    <span className={`text-sm tracking-wide uppercase ${statusFilter === 'draft' ? 'font-black text-blue-900' : 'font-bold text-gray-900'}`}>Draft & DQ</span>
+                                    <span className={`border py-0.5 px-3 rounded-full text-sm font-black shadow-sm transition-colors ${statusFilter === 'draft' ? 'bg-blue-100 border-blue-200 text-blue-800' : 'bg-white border-gray-200 text-gray-800 group-hover:border-blue-200 group-hover:text-blue-700'}`}>{stats.draft}</span>
+                                </div>
+                                <span className={`text-xs font-medium ${statusFilter === 'draft' ? 'text-blue-700' : 'text-gray-500'}`}>Initial Validation</span>
+                            </div>
+                        </div>
+                        {/* Arrow separator */}
+                        <div className="absolute top-0 right-0 hidden h-full w-6 md:block">
+                            <svg className="h-full w-full text-gray-300" viewBox="0 0 22 80" fill="none" preserveAspectRatio="none">
+                                <path d="M0 -2L20 40L0 82" vectorEffect="non-scaling-stroke" stroke="currentcolor" strokeWidth={2} strokeLinejoin="round" />
+                            </svg>
+                        </div>
+                    </li>
 
-                <div className="bg-white rounded-xl p-6 shadow-sm border border-l-4 border-gray-100 border-l-green-500 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all">
-                    <div className="flex justify-between items-start mb-4">
-                        <span className="text-sm font-semibold text-gray-500 tracking-wide uppercase">Payroll Approved</span>
-                        <div className="p-2 bg-green-50 rounded-lg text-green-600"><CheckCircle2 size={20} /></div>
-                    </div>
-                    <span className="text-4xl font-black text-gray-900">{stats.approved}</span>
-                </div>
+                    {/* Stage 2: Approval In Progress */}
+                    <li
+                        onClick={() => setStatusFilter(statusFilter === 'approval_in_progress' ? null : 'approval_in_progress')}
+                        className={`relative md:flex md:flex-1 transition-all cursor-pointer group ${statusFilter === 'approval_in_progress' ? 'bg-orange-50/80 shadow-inner' : 'hover:bg-orange-50/40'} ${statusFilter && statusFilter !== 'approval_in_progress' ? 'opacity-40 grayscale' : ''}`}
+                    >
+                        <div className="flex items-center px-6 py-5 w-full">
+                            <div className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl transition-all shadow-sm duration-300 ${statusFilter === 'approval_in_progress' ? 'bg-orange-500 text-white scale-110' : 'bg-orange-100 text-orange-600 group-hover:bg-orange-400 group-hover:text-white'}`}>
+                                <RefreshCw size={24} className={statusFilter === 'approval_in_progress' ? 'animate-spin-slow' : 'group-hover:rotate-180 transition-transform duration-500'} />
+                            </div>
+                            <div className="ml-4 flex flex-col justify-center">
+                                <div className="flex items-center gap-3 mb-0.5">
+                                    <span className={`text-sm tracking-wide uppercase ${statusFilter === 'approval_in_progress' ? 'font-black text-orange-900' : 'font-bold text-gray-900'}`}>Approvals</span>
+                                    <span className={`border py-0.5 px-3 rounded-full text-sm font-black shadow-sm transition-colors ${statusFilter === 'approval_in_progress' ? 'bg-orange-100 border-orange-200 text-orange-800' : 'bg-white border-gray-200 text-gray-800 group-hover:border-orange-200 group-hover:text-orange-700'}`}>{stats.approval_in_progress}</span>
+                                </div>
+                                <span className={`text-xs font-medium ${statusFilter === 'approval_in_progress' ? 'text-orange-700' : 'text-gray-500'}`}>Pending Sign-off</span>
+                            </div>
+                        </div>
+                        <div className="absolute top-0 right-0 hidden h-full w-6 md:block">
+                            <svg className="h-full w-full text-gray-300" viewBox="0 0 22 80" fill="none" preserveAspectRatio="none">
+                                <path d="M0 -2L20 40L0 82" vectorEffect="non-scaling-stroke" stroke="currentcolor" strokeWidth={2} strokeLinejoin="round" />
+                            </svg>
+                        </div>
+                    </li>
 
-                <div className="bg-white rounded-xl p-6 shadow-sm border border-l-4 border-gray-100 border-l-gray-500 flex flex-col justify-between hover:-translate-y-1 hover:shadow-md transition-all">
-                    <div className="flex justify-between items-start mb-4">
-                        <span className="text-sm font-semibold text-gray-500 tracking-wide uppercase w-2/3 leading-tight">Submission of Payment</span>
-                        <div className="p-2 bg-gray-50 rounded-lg text-gray-600"><Database size={20} /></div>
-                    </div>
-                    <span className="text-4xl font-black text-gray-900">{stats.submitted}</span>
-                </div>
-            </div>
+                    {/* Stage 3: Approved */}
+                    <li
+                        onClick={() => setStatusFilter(statusFilter === 'approved' ? null : 'approved')}
+                        className={`relative md:flex md:flex-1 transition-all cursor-pointer group ${statusFilter === 'approved' ? 'bg-green-50/80 shadow-inner' : 'hover:bg-green-50/40'} ${statusFilter && statusFilter !== 'approved' ? 'opacity-40 grayscale' : ''}`}
+                    >
+                        <div className="flex items-center px-6 py-5 w-full">
+                            <div className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl transition-all shadow-sm duration-300 ${statusFilter === 'approved' ? 'bg-green-600 text-white scale-110' : 'bg-green-100 text-green-600 group-hover:bg-green-500 group-hover:text-white'}`}>
+                                <CheckCircle2 size={24} />
+                            </div>
+                            <div className="ml-4 flex flex-col justify-center">
+                                <div className="flex items-center gap-3 mb-0.5">
+                                    <span className={`text-sm tracking-wide uppercase ${statusFilter === 'approved' ? 'font-black text-green-900' : 'font-bold text-gray-900'}`}>Approved</span>
+                                    <span className={`border py-0.5 px-3 rounded-full text-sm font-black shadow-sm transition-colors ${statusFilter === 'approved' ? 'bg-green-100 border-green-200 text-green-800' : 'bg-white border-gray-200 text-gray-800 group-hover:border-green-200 group-hover:text-green-700'}`}>{stats.approved}</span>
+                                </div>
+                                <span className={`text-xs font-medium ${statusFilter === 'approved' ? 'text-green-700' : 'text-gray-500'}`}>Ready for Release</span>
+                            </div>
+                        </div>
+                        <div className="absolute top-0 right-0 hidden h-full w-6 md:block">
+                            <svg className="h-full w-full text-gray-300" viewBox="0 0 22 80" fill="none" preserveAspectRatio="none">
+                                <path d="M0 -2L20 40L0 82" vectorEffect="non-scaling-stroke" stroke="currentcolor" strokeWidth={2} strokeLinejoin="round" />
+                            </svg>
+                        </div>
+                    </li>
+
+                    {/* Stage 4: Submitted */}
+                    <li
+                        onClick={() => setStatusFilter(statusFilter === 'submitted' ? null : 'submitted')}
+                        className={`relative md:flex md:flex-1 transition-all cursor-pointer group ${statusFilter === 'submitted' ? 'bg-gray-100/80 shadow-inner' : 'hover:bg-gray-50/40'} ${statusFilter && statusFilter !== 'submitted' ? 'opacity-40 grayscale' : ''}`}
+                    >
+                        <div className="flex items-center px-6 py-5 w-full">
+                            <div className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl transition-all shadow-sm duration-300 ${statusFilter === 'submitted' ? 'bg-gray-700 text-white scale-110' : 'bg-gray-100 text-gray-600 group-hover:bg-gray-600 group-hover:text-white'}`}>
+                                <Database size={24} />
+                            </div>
+                            <div className="ml-4 flex flex-col justify-center">
+                                <div className="flex items-center gap-3 mb-0.5">
+                                    <span className={`text-sm tracking-wide uppercase ${statusFilter === 'submitted' ? 'font-black text-gray-900' : 'font-bold text-gray-900'}`}>Submitted</span>
+                                    <span className={`border py-0.5 px-3 rounded-full text-sm font-black shadow-sm transition-colors ${statusFilter === 'submitted' ? 'bg-gray-200 border-gray-300 text-gray-900' : 'bg-white border-gray-200 text-gray-800 group-hover:border-gray-300 group-hover:text-gray-900'}`}>{stats.submitted}</span>
+                                </div>
+                                <span className={`text-xs font-medium ${statusFilter === 'submitted' ? 'text-gray-700' : 'text-gray-500'}`}>Sent to Banking</span>
+                            </div>
+                        </div>
+                    </li>
+
+                </ol>
+            </nav>
 
             <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
                 <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                    <h2 className="text-lg font-bold text-gray-800">Entity Approval Status</h2>
+                    <div className="flex items-center gap-4">
+                        <h2 className="text-lg font-bold text-gray-800">Entity Approval Status</h2>
+                        {statusFilter && (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 animate-in fade-in zoom-in duration-300">
+                                Filtered by: {statusFilter.replace(/_/g, ' ').toUpperCase()}
+                                <button onClick={() => setStatusFilter(null)} className="hover:text-red-500 hover:bg-blue-100 rounded-full p-0.5 transition-colors">
+                                    <Search size={12} className="hidden" /> {/* just a trick for spacing if needed, let's use a clear X */}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                </button>
+                            </span>
+                        )}
+                    </div>
                     <div className="relative w-64">
                         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
                             <Search size={16} />

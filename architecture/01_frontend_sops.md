@@ -40,3 +40,9 @@ Global state is strictly used for data that spans multiple modules or requires c
 ## 6. The "No-Guess" Rule
 
 - If an API shape changes, update `gemini.md` -> `types/index.ts` -> `store/` -> `components/` in that precise order. Do not guess on intermediate states.
+
+## 7. Current Layout Paradigms (Strict)
+
+- **Dashboard**: Uses a connected, sequential `Stepper` component for payroll status progression (Draft -> Approval -> Approved -> Submitted). Clicking a stepper element acts as a visual filter on the Entities table.
+- **Config**: Settings are divided into visual sections. Both `Org Unit` and `Validation Rules` must use identical theming (Indigo icons, solid buttons, clear header separation). Rule creation leverages floating Modals (`showRuleModal`), not page redirects.
+- **Data Governance**: The top-level Key Metrics section uses premium solid glassmorphic cards with respective themes (`Emerald` for quality score, `Amber` for active anomalies, and `Indigo` for rule metadata). The anomaly table must include complex filtering headers and a linked `rule` ID badge with hover tooltips (`title` attribute) referencing the root validation rule.

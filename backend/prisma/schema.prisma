@@ -37,6 +37,7 @@ model DQIssue {
   employee    String
   entity      String
   description String
+  rule        String @default("RUL-GEN")
 }
 
 model OrgUnit {

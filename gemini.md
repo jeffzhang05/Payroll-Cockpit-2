@@ -39,7 +39,8 @@ This file serves as the definitive source for data boundaries, API payloads, and
   "severity": "Critical | High | Medium | Low",
   "employee": "string",
   "entity": "string",
-  "description": "string"
+  "description": "string",
+  "rule": "string"
 }
 ```
 
@@ -52,6 +53,17 @@ This file serves as the definitive source for data boundaries, API payloads, and
   "legalEntity": "string",
   "reportingUnit": "string",
   "active": "boolean"
+}
+```
+
+### 5. Validation Rule Record (ValidationRule)
+```json
+{
+  "id": "string",
+  "field": "string",
+  "operator": "string",
+  "value": "string",
+  "isActive": "boolean"
 }
 ```
 

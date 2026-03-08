@@ -96,9 +96,9 @@ async function main() {
     // Create DQ Issues
     await prisma.dQIssue.createMany({
         data: [
-            { id: 'DQ-101', type: 'Missing Bank Details', severity: 'High', employee: 'E10452', entity: 'Acme EMEA', description: 'IBAN missing for new hire' },
-            { id: 'DQ-102', type: 'Negative Net Pay', severity: 'Critical', employee: 'E09381', entity: 'Global Tech Corp', description: 'Deductions exceed gross pay' },
-            { id: 'DQ-103', type: 'Unusual Overtime', severity: 'Medium', employee: 'E11200', entity: 'Acme APAC', description: 'Overtime > 50% of standard hours' }
+            { id: 'DQ-101', type: 'Missing Bank Details', severity: 'High', employee: 'E10452', entity: 'Acme EMEA', description: 'IBAN missing for new hire', rule: 'RUL-003' },
+            { id: 'DQ-102', type: 'Negative Net Pay', severity: 'Critical', employee: 'E09381', entity: 'Global Tech Corp', description: 'Deductions exceed gross pay', rule: 'RUL-001' },
+            { id: 'DQ-103', type: 'Unusual Overtime', severity: 'Medium', employee: 'E11200', entity: 'Acme APAC', description: 'Overtime > 50% of standard hours', rule: 'RUL-002' }
         ]
     });
 

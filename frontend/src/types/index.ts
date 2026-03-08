@@ -37,6 +37,7 @@ export interface DQIssue {
     employee: string;
     entity: string;
     description: string;
+    rule: string;
 }
 
 export type Region = 'Americas' | 'EMEA' | 'APAC';
