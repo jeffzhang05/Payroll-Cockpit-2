@@ -1,0 +1,4 @@
+id;type;severity;employee;entity;description;rule
+"DQ-101";"Missing Bank Details";"High";"E10452";"Acme EMEA";"IBAN missing for new hire";"RUL-003"
+"DQ-102";"Negative Net Pay";"Critical";"E09381";"Global Tech Corp";"Deductions exceed gross pay";"RUL-001"
+"DQ-103";"Unusual Overtime";"Medium";"E11200";"Acme APAC";"Overtime > 50% of standard hours";"RUL-002"

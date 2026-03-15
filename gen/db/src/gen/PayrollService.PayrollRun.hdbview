@@ -1,0 +1,9 @@
+VIEW PayrollService_PayrollRun AS SELECT
+  PayrollRun_0.id,
+  PayrollRun_0.company,
+  PayrollRun_0."MONTH",
+  PayrollRun_0.employees,
+  PayrollRun_0.totalAmount,
+  PayrollRun_0.status,
+  PayrollRun_0.lastUpdated
+FROM sappro_payroll_PayrollRun AS PayrollRun_0

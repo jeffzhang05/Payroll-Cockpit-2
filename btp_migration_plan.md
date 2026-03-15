@@ -29,12 +29,14 @@ We will systematically replace the Prisma ORM and Express routers with **Core Da
 
 1. **Define the Namespace and Entities:**
    - Create `db/schema.cds` with namespace e.g., `sappro.payroll`.
-2. **Translate Models:**
+2. **Revise Data Model:**
+   - Adapt current custom entities to align with the **SAP Standard Data Model** (e.g., formatting to map cleanly to SuccessFactors Employee Central VDM entities or SAP Master Data types).
+3. **Translate Models:**
    - **PayrollRun**: Map `id`, `company`, `month`, `employees`, `totalAmount`, `status`, `lastUpdated`. 
    - **AuditLog**: Map ID (as auto-incremented or UUID `cds.UUID`), date, user, action, etc.
    - **DQIssue**: Map ID, severity, rule, etc.
    - **OrgUnit**: Map hierarchical data.
-3. **Seed Data Migration:**
+4. **Seed Data Migration:**
    - Convert the Prisma `seed.ts` logic into standard CAP CSV files located in `db/data/` (e.g., `sappro.payroll-PayrollRun.csv`), which CAP auto-deploys via `cds deploy`.
 
 ---

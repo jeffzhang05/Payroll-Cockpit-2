@@ -1,0 +1,8 @@
+VIEW PayrollService_OrgUnit AS SELECT
+  OrgUnit_0.id,
+  OrgUnit_0.region,
+  OrgUnit_0.country,
+  OrgUnit_0.legalEntity,
+  OrgUnit_0.reportingUnit,
+  OrgUnit_0.active
+FROM sappro_payroll_OrgUnit AS OrgUnit_0

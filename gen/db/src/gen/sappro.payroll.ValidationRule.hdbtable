@@ -1,0 +1,8 @@
+COLUMN TABLE sappro_payroll_ValidationRule (
+  id NVARCHAR(50) NOT NULL,
+  field NVARCHAR(100),
+  operator NVARCHAR(50),
+  value NVARCHAR(100),
+  isActive BOOLEAN DEFAULT TRUE,
+  PRIMARY KEY(id)
+)

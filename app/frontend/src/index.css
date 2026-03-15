@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --color-black: #0f1623;
+  --color-navy: #0f1623;
+  --color-off-white: #f5f7fa;
+  --color-blue-bg: #eff6ff;
+  --color-blue-accent: #2563eb;
+  --color-green-accent: #16a34a;
+  --color-orange-accent: #f97316;
+  --color-red-accent: #dc2626;
+  --color-grey-accent: #6b7280;
+}
+
+body {
+  font-family: 'DM Sans', 'Plus Jakarta Sans', sans-serif;
+  background-color: var(--color-off-white);
+  color: var(--color-black);
+}
+
+.shadow-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}

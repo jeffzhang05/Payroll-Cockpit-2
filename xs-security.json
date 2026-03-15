@@ -1,0 +1,32 @@
+{
+  "xsappname": "payroll-cockpit",
+  "tenant-mode": "dedicated",
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.PayrollAdmin",
+      "description": "Administrator for Payroll Cockpit"
+    },
+    {
+      "name": "$XSAPPNAME.PayrollViewer",
+      "description": "Read-only access to Payroll Cockpit"
+    }
+  ],
+  "attributes": [],
+  "role-templates": [
+    {
+      "name": "PayrollAdmin",
+      "description": "Administrator for Payroll Cockpit",
+      "scope-references": [
+        "$XSAPPNAME.PayrollAdmin",
+        "$XSAPPNAME.PayrollViewer"
+      ]
+    },
+    {
+      "name": "PayrollViewer",
+      "description": "Read-only access to Payroll Cockpit",
+      "scope-references": [
+        "$XSAPPNAME.PayrollViewer"
+      ]
+    }
+  ]
+}

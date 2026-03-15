@@ -1,0 +1,10 @@
+COLUMN TABLE sappro_payroll_PayrollRun (
+  id NVARCHAR(50) NOT NULL,
+  company NVARCHAR(100),
+  "MONTH" NVARCHAR(50),
+  employees INTEGER,
+  totalAmount NVARCHAR(50),
+  status NVARCHAR(50),
+  lastUpdated NVARCHAR(50),
+  PRIMARY KEY(id)
+)

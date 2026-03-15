@@ -1,0 +1,37 @@
+{
+  "format_version": 1,
+  "imports": [
+    {
+      "target_table": "SAPPRO_PAYROLL_DQISSUE",
+      "source_data": {
+        "data_type": "CSV",
+        "file_name": "sappro.payroll-DQIssue.csv",
+        "has_header": true,
+        "type_config": {
+          "delimiter": ";"
+        }
+      },
+      "import_settings": {
+        "import_columns": [
+          "ID",
+          "TYPE",
+          "SEVERITY",
+          "EMPLOYEE",
+          "ENTITY",
+          "DESCRIPTION",
+          "RULE"
+        ],
+        "include_filter": []
+      },
+      "column_mappings": {
+        "ID": "id",
+        "TYPE": "type",
+        "SEVERITY": "severity",
+        "EMPLOYEE": "employee",
+        "ENTITY": "entity",
+        "DESCRIPTION": "description",
+        "RULE": "rule"
+      }
+    }
+  ]
+}

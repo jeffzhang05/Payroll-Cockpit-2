@@ -1,0 +1,444 @@
+{
+  "namespace": "sappro.payroll",
+  "definitions": {
+    "sappro.payroll.PayrollRun": {
+      "kind": "entity",
+      "elements": {
+        "id": {
+          "key": true,
+          "type": "cds.String",
+          "length": 50
+        },
+        "company": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "month": {
+          "type": "cds.String",
+          "length": 50
+        },
+        "employees": {
+          "type": "cds.Integer"
+        },
+        "totalAmount": {
+          "type": "cds.String",
+          "length": 50
+        },
+        "status": {
+          "type": "cds.String",
+          "length": 50
+        },
+        "lastUpdated": {
+          "type": "cds.String",
+          "length": 50
+        }
+      }
+    },
+    "sappro.payroll.AuditLog": {
+      "kind": "entity",
+      "elements": {
+        "id": {
+          "key": true,
+          "type": "cds.Integer"
+        },
+        "date": {
+          "type": "cds.String",
+          "length": 50
+        },
+        "user": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "action": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "details": {
+          "type": "cds.String",
+          "length": 255
+        },
+        "entity": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "month": {
+          "type": "cds.String",
+          "length": 50
+        }
+      }
+    },
+    "sappro.payroll.DQIssue": {
+      "kind": "entity",
+      "elements": {
+        "id": {
+          "key": true,
+          "type": "cds.String",
+          "length": 50
+        },
+        "type": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "severity": {
+          "type": "cds.String",
+          "length": 50
+        },
+        "employee": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "entity": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "description": {
+          "type": "cds.String",
+          "length": 255
+        },
+        "rule": {
+          "type": "cds.String",
+          "length": 50,
+          "default": {
+            "val": "RUL-GEN"
+          }
+        }
+      }
+    },
+    "sappro.payroll.OrgUnit": {
+      "kind": "entity",
+      "elements": {
+        "id": {
+          "key": true,
+          "type": "cds.Integer"
+        },
+        "region": {
+          "type": "cds.String",
+          "length": 50
+        },
+        "country": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "legalEntity": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "reportingUnit": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "active": {
+          "type": "cds.Boolean",
+          "default": {
+            "val": true
+          }
+        }
+      }
+    },
+    "sappro.payroll.ValidationRule": {
+      "kind": "entity",
+      "elements": {
+        "id": {
+          "key": true,
+          "type": "cds.String",
+          "length": 50
+        },
+        "field": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "operator": {
+          "type": "cds.String",
+          "length": 50
+        },
+        "value": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "isActive": {
+          "type": "cds.Boolean",
+          "default": {
+            "val": true
+          }
+        }
+      }
+    },
+    "PayrollService": {
+      "@source": "srv/service.cds",
+      "kind": "service",
+      "@path": "/api",
+      "@requires": "PayrollAdmin"
+    },
+    "PayrollService.connectionStatus": {
+      "kind": "function",
+      "returns": {
+        "elements": {
+          "connected": {
+            "type": "cds.Boolean"
+          },
+          "system": {
+            "type": "cds.String"
+          }
+        }
+      }
+    },
+    "PayrollService.PayrollRun": {
+      "kind": "entity",
+      "@path": "payroll-runs",
+      "projection": {
+        "from": {
+          "ref": [
+            "sappro.payroll.PayrollRun"
+          ]
+        }
+      },
+      "elements": {
+        "id": {
+          "key": true,
+          "type": "cds.String",
+          "length": 50
+        },
+        "company": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "month": {
+          "type": "cds.String",
+          "length": 50
+        },
+        "employees": {
+          "type": "cds.Integer"
+        },
+        "totalAmount": {
+          "type": "cds.String",
+          "length": 50
+        },
+        "status": {
+          "type": "cds.String",
+          "length": 50
+        },
+        "lastUpdated": {
+          "type": "cds.String",
+          "length": 50
+        }
+      }
+    },
+    "PayrollService.AuditLog": {
+      "kind": "entity",
+      "@path": "audit-log",
+      "projection": {
+        "from": {
+          "ref": [
+            "sappro.payroll.AuditLog"
+          ]
+        }
+      },
+      "elements": {
+        "id": {
+          "key": true,
+          "type": "cds.Integer"
+        },
+        "date": {
+          "type": "cds.String",
+          "length": 50
+        },
+        "user": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "action": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "details": {
+          "type": "cds.String",
+          "length": 255
+        },
+        "entity": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "month": {
+          "type": "cds.String",
+          "length": 50
+        }
+      }
+    },
+    "PayrollService.DQIssue": {
+      "kind": "entity",
+      "@path": "dq-issues",
+      "projection": {
+        "from": {
+          "ref": [
+            "sappro.payroll.DQIssue"
+          ]
+        }
+      },
+      "elements": {
+        "id": {
+          "key": true,
+          "type": "cds.String",
+          "length": 50
+        },
+        "type": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "severity": {
+          "type": "cds.String",
+          "length": 50
+        },
+        "employee": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "entity": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "description": {
+          "type": "cds.String",
+          "length": 255
+        },
+        "rule": {
+          "type": "cds.String",
+          "length": 50,
+          "default": {
+            "val": "RUL-GEN"
+          }
+        }
+      }
+    },
+    "PayrollService.OrgUnit": {
+      "kind": "entity",
+      "@path": "org-units",
+      "projection": {
+        "from": {
+          "ref": [
+            "sappro.payroll.OrgUnit"
+          ]
+        }
+      },
+      "elements": {
+        "id": {
+          "key": true,
+          "type": "cds.Integer"
+        },
+        "region": {
+          "type": "cds.String",
+          "length": 50
+        },
+        "country": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "legalEntity": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "reportingUnit": {
+          "type": "cds.String",
+          "length": 100
+        },
+        "active": {
+          "type": "cds.Boolean",
+          "default": {
+            "val": true
+          }
+        }
+      }
+    },
+    "PayrollService.changePayrollStatus": {
+      "kind": "action",
+      "params": {
+        "id": {
+          "type": "cds.String"
+        },
+        "action": {
+          "type": "cds.String"
+        }
+      },
+      "returns": {
+        "type": "PayrollService.PayrollRun"
+      }
+    },
+    "PayrollService.syncDQIssues": {
+      "kind": "action",
+      "returns": {
+        "elements": {
+          "message": {
+            "type": "cds.String"
+          },
+          "count": {
+            "type": "cds.Integer"
+          }
+        }
+      }
+    },
+    "PayrollService.deactivateOrgUnit": {
+      "kind": "action",
+      "params": {
+        "id": {
+          "type": "cds.Integer"
+        }
+      },
+      "returns": {
+        "type": "PayrollService.OrgUnit"
+      }
+    },
+    "cds.outbox.Messages": {
+      "kind": "entity",
+      "elements": {
+        "ID": {
+          "key": true,
+          "type": "cds.UUID"
+        },
+        "timestamp": {
+          "type": "cds.Timestamp"
+        },
+        "target": {
+          "type": "cds.String"
+        },
+        "msg": {
+          "type": "cds.LargeString"
+        },
+        "attempts": {
+          "type": "cds.Integer",
+          "default": {
+            "val": 0
+          }
+        },
+        "partition": {
+          "type": "cds.Integer",
+          "default": {
+            "val": 0
+          }
+        },
+        "lastError": {
+          "type": "cds.LargeString"
+        },
+        "lastAttemptTimestamp": {
+          "type": "cds.Timestamp"
+        },
+        "status": {
+          "type": "cds.String",
+          "length": 23
+        },
+        "task": {
+          "type": "cds.String",
+          "length": 255
+        },
+        "appid": {
+          "type": "cds.String",
+          "length": 255
+        }
+      }
+    }
+  },
+  "meta": {
+    "creator": "CDS Compiler v6.8.0",
+    "compilerCsnFlavor": "inferred",
+    "flavor": "inferred"
+  },
+  "$version": "2.0"
+}

@@ -1,0 +1,5 @@
+id;region;country;legalEntity;reportingUnit;active
+"1";"Americas";"United States";"Global Tech US LLC";"US-East Operations";"true"
+"2";"Americas";"United States";"Global Tech US LLC";"US-West Operations";"true"
+"3";"EMEA";"Germany";"Acme GmbH";"Berlin HQ";"true"
+"4";"APAC";"Singapore";"Acme APAC Pte Ltd";"SG Sales";"true"

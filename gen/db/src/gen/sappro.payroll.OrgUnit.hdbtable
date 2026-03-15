@@ -1,0 +1,9 @@
+COLUMN TABLE sappro_payroll_OrgUnit (
+  id INTEGER NOT NULL,
+  region NVARCHAR(50),
+  country NVARCHAR(100),
+  legalEntity NVARCHAR(100),
+  reportingUnit NVARCHAR(100),
+  active BOOLEAN DEFAULT TRUE,
+  PRIMARY KEY(id)
+)

@@ -1,0 +1,9 @@
+VIEW PayrollService_DQIssue AS SELECT
+  DQIssue_0.id,
+  DQIssue_0.type,
+  DQIssue_0.severity,
+  DQIssue_0.employee,
+  DQIssue_0.entity,
+  DQIssue_0.description,
+  DQIssue_0.rule
+FROM sappro_payroll_DQIssue AS DQIssue_0

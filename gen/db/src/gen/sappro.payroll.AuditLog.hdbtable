@@ -1,0 +1,10 @@
+COLUMN TABLE sappro_payroll_AuditLog (
+  id INTEGER NOT NULL,
+  "DATE" NVARCHAR(50),
+  "USER" NVARCHAR(100),
+  action NVARCHAR(100),
+  details NVARCHAR(255),
+  entity NVARCHAR(100),
+  "MONTH" NVARCHAR(50),
+  PRIMARY KEY(id)
+)

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/Common.xml">
+    <edmx:Include Alias="Common" Namespace="com.sap.vocabularies.Common.v1"/>
+  </edmx:Reference>
+  <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Core.V1.xml">
+    <edmx:Include Alias="Core" Namespace="Org.OData.Core.V1"/>
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema Namespace="PayrollService" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <Annotation Term="Core.Links">
+        <Collection>
+          <Record>
+            <PropertyValue Property="rel" String="author"/>
+            <PropertyValue Property="href" String="https://cap.cloud.sap"/>
+          </Record>
+        </Collection>
+      </Annotation>
+      <EntityContainer Name="EntityContainer">
+        <EntitySet Name="PayrollRun" EntityType="PayrollService.PayrollRun"/>
+        <EntitySet Name="AuditLog" EntityType="PayrollService.AuditLog"/>
+        <EntitySet Name="DQIssue" EntityType="PayrollService.DQIssue"/>
+        <EntitySet Name="OrgUnit" EntityType="PayrollService.OrgUnit"/>
+        <FunctionImport Name="connectionStatus" Function="PayrollService.connectionStatus"/>
+        <ActionImport Name="changePayrollStatus" Action="PayrollService.changePayrollStatus" EntitySet="PayrollRun"/>
+        <ActionImport Name="syncDQIssues" Action="PayrollService.syncDQIssues"/>
+        <ActionImport Name="deactivateOrgUnit" Action="PayrollService.deactivateOrgUnit" EntitySet="OrgUnit"/>
+      </EntityContainer>
+      <EntityType Name="PayrollRun">
+        <Key>
+          <PropertyRef Name="id"/>
+        </Key>
+        <Property Name="id" Type="Edm.String" MaxLength="50" Nullable="false"/>
+        <Property Name="company" Type="Edm.String" MaxLength="100"/>
+        <Property Name="month" Type="Edm.String" MaxLength="50"/>
+        <Property Name="employees" Type="Edm.Int32"/>
+        <Property Name="totalAmount" Type="Edm.String" MaxLength="50"/>
+        <Property Name="status" Type="Edm.String" MaxLength="50"/>
+        <Property Name="lastUpdated" Type="Edm.String" MaxLength="50"/>
+      </EntityType>
+      <EntityType Name="AuditLog">
+        <Key>
+          <PropertyRef Name="id"/>
+        </Key>
+        <Property Name="id" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="date" Type="Edm.String" MaxLength="50"/>
+        <Property Name="user" Type="Edm.String" MaxLength="100"/>
+        <Property Name="action" Type="Edm.String" MaxLength="100"/>
+        <Property Name="details" Type="Edm.String" MaxLength="255"/>
+        <Property Name="entity" Type="Edm.String" MaxLength="100"/>
+        <Property Name="month" Type="Edm.String" MaxLength="50"/>
+      </EntityType>
+      <EntityType Name="DQIssue">
+        <Key>
+          <PropertyRef Name="id"/>
+        </Key>
+        <Property Name="id" Type="Edm.String" MaxLength="50" Nullable="false"/>
+        <Property Name="type" Type="Edm.String" MaxLength="100"/>
+        <Property Name="severity" Type="Edm.String" MaxLength="50"/>
+        <Property Name="employee" Type="Edm.String" MaxLength="100"/>
+        <Property Name="entity" Type="Edm.String" MaxLength="100"/>
+        <Property Name="description" Type="Edm.String" MaxLength="255"/>
+        <Property Name="rule" Type="Edm.String" MaxLength="50" DefaultValue="RUL-GEN"/>
+      </EntityType>
+      <EntityType Name="OrgUnit">
+        <Key>
+          <PropertyRef Name="id"/>
+        </Key>
+        <Property Name="id" Type="Edm.Int32" Nullable="false"/>
+        <Property Name="region" Type="Edm.String" MaxLength="50"/>
+        <Property Name="country" Type="Edm.String" MaxLength="100"/>
+        <Property Name="legalEntity" Type="Edm.String" MaxLength="100"/>
+        <Property Name="reportingUnit" Type="Edm.String" MaxLength="100"/>
+        <Property Name="active" Type="Edm.Boolean" DefaultValue="true"/>
+      </EntityType>
+      <ComplexType Name="return_PayrollService_connectionStatus">
+        <Property Name="connected" Type="Edm.Boolean"/>
+        <Property Name="system" Type="Edm.String"/>
+      </ComplexType>
+      <ComplexType Name="return_PayrollService_syncDQIssues">
+        <Property Name="message" Type="Edm.String"/>
+        <Property Name="count" Type="Edm.Int32"/>
+      </ComplexType>
+      <Function Name="connectionStatus" IsBound="false" IsComposable="false">
+        <ReturnType Type="PayrollService.return_PayrollService_connectionStatus"/>
+      </Function>
+      <Action Name="changePayrollStatus" IsBound="false">
+        <Parameter Name="id" Type="Edm.String"/>
+        <Parameter Name="action" Type="Edm.String"/>
+        <ReturnType Type="PayrollService.PayrollRun"/>
+      </Action>
+      <Action Name="syncDQIssues" IsBound="false">
+        <ReturnType Type="PayrollService.return_PayrollService_syncDQIssues"/>
+      </Action>
+      <Action Name="deactivateOrgUnit" IsBound="false">
+        <Parameter Name="id" Type="Edm.Int32"/>
+        <ReturnType Type="PayrollService.OrgUnit"/>
+      </Action>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

@@ -1,0 +1,37 @@
+{
+  "format_version": 1,
+  "imports": [
+    {
+      "target_table": "SAPPRO_PAYROLL_AUDITLOG",
+      "source_data": {
+        "data_type": "CSV",
+        "file_name": "sappro.payroll-AuditLog.csv",
+        "has_header": true,
+        "type_config": {
+          "delimiter": ";"
+        }
+      },
+      "import_settings": {
+        "import_columns": [
+          "ID",
+          "DATE",
+          "USER",
+          "ENTITY",
+          "MONTH",
+          "ACTION",
+          "DETAILS"
+        ],
+        "include_filter": []
+      },
+      "column_mappings": {
+        "ID": "id",
+        "DATE": "date",
+        "USER": "user",
+        "ENTITY": "entity",
+        "MONTH": "month",
+        "ACTION": "action",
+        "DETAILS": "details"
+      }
+    }
+  ]
+}

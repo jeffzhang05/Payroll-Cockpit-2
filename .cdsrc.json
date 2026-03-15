@@ -1,0 +1,29 @@
+{
+  "requires": {
+    "db": {
+      "kind": "sqlite"
+    },
+    "[production]": {
+      "db": {
+        "kind": "hana"
+      }
+    },
+    "EC_Payroll_API": {
+      "kind": "odata-v2",
+      "credentials": {
+        "destination": "SuccessFactors_EC",
+        "path": "/odata/v2"
+      }
+    },
+    "auth": {
+      "users": {
+        "alice": {
+          "roles": ["PayrollAdmin"]
+        },
+        "bob": {
+          "roles": ["PayrollViewer"]
+        }
+      }
+    }
+  }
+}

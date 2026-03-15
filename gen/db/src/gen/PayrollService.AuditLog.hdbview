@@ -1,0 +1,9 @@
+VIEW PayrollService_AuditLog AS SELECT
+  AuditLog_0.id,
+  AuditLog_0."DATE",
+  AuditLog_0."USER",
+  AuditLog_0.action,
+  AuditLog_0.details,
+  AuditLog_0.entity,
+  AuditLog_0."MONTH"
+FROM sappro_payroll_AuditLog AS AuditLog_0

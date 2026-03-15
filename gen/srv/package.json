@@ -1,0 +1,27 @@
+{
+  "dependencies": {
+    "@cap-js/hana": "^2.7.0",
+    "@sap-cloud-sdk/connectivity": "^4.5.1",
+    "@sap-cloud-sdk/http-client": "^4.5.1",
+    "@sap/cds": "^9.8.3",
+    "express": "^5.2.1",
+    "hdb": "^2.27.1",
+    "puppeteer": "^24.38.0",
+    "@sap/xssec": "^4"
+  },
+  "devDependencies": {
+    "@cap-js/sqlite": "^2.2.0",
+    "@sap/cds-dk": "^9.8.1",
+    "sqlite3": "^6.0.1"
+  },
+  "cds": {
+    "requires": {
+      "[production]": {
+        "auth": "xsuaa"
+      }
+    }
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,10 @@
+COLUMN TABLE sappro_payroll_DQIssue (
+  id NVARCHAR(50) NOT NULL,
+  type NVARCHAR(100),
+  severity NVARCHAR(50),
+  employee NVARCHAR(100),
+  entity NVARCHAR(100),
+  description NVARCHAR(255),
+  rule NVARCHAR(50) DEFAULT 'RUL-GEN',
+  PRIMARY KEY(id)
+)

@@ -73,9 +73,9 @@ This file serves as the definitive source for data boundaries, API payloads, and
 **Last Updated**: March 2026
 
 ### 1. Operations
-- **Frontend Startup**: `cd frontend && npm run dev`
-- **Backend Startup**: `cd backend && npx tsx watch server.ts`
-- **Port Definitions**: Frontend (`http://localhost:5173`), Backend (`http://localhost:3000`)
+- **System Startup (Backend API + Database)**: `npx cds watch` (Run in root directory)
+- **Frontend Startup**: `cd app/frontend && npm run dev`
+- **Port Definitions**: Frontend via Vite (`http://localhost:5173`), CAP Backend (`http://localhost:4004`)
 
 ### 2. Architecture Enforcements (A.N.T.)
 - **Layer 1 (Architecture)**: All logic and layouts are strictly mapped in `architecture/01_frontend_sops.md`. Any future modifications to component structures or workflows **must** explicitly update this SOP file first.

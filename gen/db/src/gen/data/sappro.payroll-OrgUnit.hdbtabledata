@@ -1,0 +1,35 @@
+{
+  "format_version": 1,
+  "imports": [
+    {
+      "target_table": "SAPPRO_PAYROLL_ORGUNIT",
+      "source_data": {
+        "data_type": "CSV",
+        "file_name": "sappro.payroll-OrgUnit.csv",
+        "has_header": true,
+        "type_config": {
+          "delimiter": ";"
+        }
+      },
+      "import_settings": {
+        "import_columns": [
+          "ID",
+          "REGION",
+          "COUNTRY",
+          "LEGALENTITY",
+          "REPORTINGUNIT",
+          "ACTIVE"
+        ],
+        "include_filter": []
+      },
+      "column_mappings": {
+        "ID": "id",
+        "REGION": "region",
+        "COUNTRY": "country",
+        "LEGALENTITY": "legalEntity",
+        "REPORTINGUNIT": "reportingUnit",
+        "ACTIVE": "active"
+      }
+    }
+  ]
+}
