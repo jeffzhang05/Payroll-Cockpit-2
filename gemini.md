@@ -73,9 +73,25 @@ This file serves as the definitive source for data boundaries, API payloads, and
 **Last Updated**: March 2026
 
 ### 1. Operations
+
+**Local Development:**
 - **System Startup (Backend API + Database)**: `npx cds watch` (Run in root directory)
 - **Frontend Startup**: `cd app/frontend && npm run dev`
 - **Port Definitions**: Frontend via Vite (`http://localhost:5173`), CAP Backend (`http://localhost:4004`)
+
+**BTP Cloud Deployment (SAP Cloud Foundry):**
+- **Step 1 — BTP Admin Login**: `~/.local/bin/btp login` → server: `https://cli.btp.cloud.sap`
+- **Step 2 — CF Runtime Login**: `~/.local/bin/cf login -a https://api.cf.us10-001.hana.ondemand.com --sso`
+- **Step 3 — Build MTA Archive**: `npx mbt build` → outputs `mta_archives/payroll-cockpit_1.0.0.mtar`
+- **Step 4 — Deploy to BTP**: `~/.local/bin/cf deploy mta_archives/payroll-cockpit_1.0.0.mtar`
+
+**Live BTP URLs (Trial — us10 region):**
+- **Frontend**: `https://48784fe5trial-dev-payroll-cockpit.cfapps.us10-001.hana.ondemand.com`
+- **CAP API**: `https://48784fe5trial-dev-payroll-cockpit-srv.cfapps.us10-001.hana.ondemand.com`
+
+**CLI Tool Locations** (stored in `~/.local/bin/`, not on system PATH by default):
+- `~/.local/bin/btp` — SAP BTP CLI v2.97.0
+- `~/.local/bin/cf` — Cloud Foundry CLI v8.18.0 (with MultiApps plugin v3.10.0)
 
 ### 2. Architecture Enforcements (A.N.T.)
 - **Layer 1 (Architecture)**: All logic and layouts are strictly mapped in `architecture/01_frontend_sops.md`. Any future modifications to component structures or workflows **must** explicitly update this SOP file first.
@@ -84,6 +100,6 @@ This file serves as the definitive source for data boundaries, API payloads, and
 
 ### 3. Future Implementations (Post-MVP)
 - Implement actual `@sap/cloud-sdk-vdm-ec-payroll-service` using the BTP Cloud SDK.
-- Switch `backend/prisma/schema.prisma` from SQLite to a real PostgreSQL connection (`.env` keys required) for enterprise deployment.
+- ~~Switch `backend/prisma/schema.prisma` from SQLite to a real PostgreSQL connection~~ → **DONE**: Migrated to SAP HANA Cloud HDI container via CAP (`@cap-js/hana`). Deployed and running.
 - Augment `useAuditStore` with pagination if Historical Log scales beyond MVP scope.
-- Enforce full RBAC (Role-Based Access Control) across SAP xsuaa tokens before removing `mock` labels.
+- ~~Enforce full RBAC (Role-Based Access Control) across SAP xsuaa tokens before removing `mock` labels~~ → **DONE (MVP Level)**: XSUAA `PayrollAdmin` / `PayrollViewer` role templates enforced via `xs-security.json` and `@requires` annotations on `PayrollService`.

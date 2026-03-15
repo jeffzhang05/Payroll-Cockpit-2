@@ -84,7 +84,86 @@ We will systematically replace the Prisma ORM and Express routers with **Core Da
    - Build the `.mtar` archive using the Cloud MTA Build Tool (`mbt build`).
    - Run `cf deploy` mapping the application onto your SAP BTP Cloud Foundry space.
 
+### Coworking Next Steps
+All 5 Phases are now **COMPLETE**. The application is live on SAP BTP. Next steps are post-MVP enhancements listed in `gemini.md`.
+
 ---
 
-### Coworking Next Steps
-Whenever you are ready to start **Phase 1**, just tell me to execute! I will natively run the `cds init` commands, scaffold the required SAP modules, and we can begin translating Prisma syntax into CDS!
+## Phase 5 Completion — BTP Cloud Deployment (Executed: March 15, 2026)
+
+### Pre-Requisites Installed
+| Tool | Version | Install Method |
+| :--- | :--- | :--- |
+| `btp` CLI | v2.97.0 | Manual download from `tools.hana.ondemand.com` → moved to `~/.local/bin/btp` |
+| `cf` CLI | v8.18.0 | Downloaded from `packages.cloudfoundry.org` → moved to `~/.local/bin/cf` |
+| MultiApps CF Plugin | v3.10.0 | `cf install-plugin multiapps -r CF-Community -f` |
+
+> **PATH Note**: Both `btp` and `cf` are in `~/.local/bin/`. Run `sudo sh -c 'echo "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> ~/.zshrc' && source ~/.zshrc` to make them globally accessible.
+
+---
+
+### Step-by-Step Deployment Procedure
+
+#### 1. Log into BTP CLI
+```bash
+~/.local/bin/btp login
+# CLI server URL: https://cli.btp.cloud.sap
+# User: jianfeng.zhang2@zf.com
+# Current target: 48784fe5trial (global account)
+# Subaccount ID: 8d704fd7-47ee-4e7c-8726-7b32a2039dfe
+```
+
+#### 2. Log into Cloud Foundry (Application Runtime)
+```bash
+~/.local/bin/cf login -a https://api.cf.us10-001.hana.ondemand.com --sso
+# Select Org: 48784fe5trial
+# Select Space: dev
+```
+
+#### 3. Build the MTA Archive
+```bash
+npx mbt build
+# Output: mta_archives/payroll-cockpit_1.0.0.mtar
+```
+
+#### 4. Deploy to BTP Cloud Foundry
+```bash
+~/.local/bin/cf deploy mta_archives/payroll-cockpit_1.0.0.mtar
+```
+
+---
+
+### Errors Encountered & Root Causes
+
+#### Error 1 — `hdi-shared` Service Failed to Create
+- **Symptom**: `Couldn't create an instance of service 'SAP HANA Schemas & HDI Containers' with plan 'hdi-shared'`
+- **Root Cause**: No running SAP HANA Cloud instance existed in the `dev` space. The entitlement (`hana: hdi-shared`) was already assigned, but the physical database was never provisioned.
+- **Fix**: Manually created an SAP HANA Cloud Database instance via BTP Cockpit → Subaccount → Space → SAP HANA Cloud → Create (plan: `hana-free`). Waited ~10 minutes for status to turn green.
+
+#### Error 2 — `payroll-cockpit-srv` Crash Loop (`npm error Missing script: "start"`)
+- **Symptom**: App deployed but immediately crashed on every start attempt with `npm error Missing script: "start"`.
+- **Root Cause**: The root `package.json` had no `"scripts"` section. Cloud Foundry always boots Node.js apps by running `npm start`, which requires a `start` script.
+- **Fix**: Added the following to `package.json`:
+  ```json
+  "scripts": {
+    "start": "cds-serve"
+  }
+  ```
+  Then rebuilt the archive with `npx mbt build` and redeployed.
+
+---
+
+### Live Deployment URLs (Production — BTP Trial)
+
+| Module | URL |
+| :--- | :--- |
+| **Frontend (Approuter)** | `https://48784fe5trial-dev-payroll-cockpit.cfapps.us10-001.hana.ondemand.com` |
+| **CAP API (srv)** | `https://48784fe5trial-dev-payroll-cockpit-srv.cfapps.us10-001.hana.ondemand.com` |
+
+### Active BTP Services
+| Service Name | Type | Plan |
+| :--- | :--- | :--- |
+| `payroll-cockpit-auth` | XSUAA | application |
+| `payroll-cockpit-db` | HANA HDI Container | hdi-shared |
+| `payroll-cockpit-destination` | Destination Service | lite |
+
