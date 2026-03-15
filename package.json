@@ -1,4 +1,8 @@
 {
+  "name": "payroll-cockpit",
+  "scripts": {
+    "start": "cds-serve"
+  },
   "dependencies": {
     "@cap-js/hana": "^2.7.0",
     "@sap-cloud-sdk/connectivity": "^4.5.1",

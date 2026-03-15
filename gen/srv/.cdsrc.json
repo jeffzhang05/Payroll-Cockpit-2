@@ -14,6 +14,16 @@
         "destination": "SuccessFactors_EC",
         "path": "/odata/v2"
       }
+    },
+    "auth": {
+      "users": {
+        "alice": {
+          "roles": ["PayrollAdmin"]
+        },
+        "bob": {
+          "roles": ["PayrollViewer"]
+        }
+      }
     }
   }
 }
