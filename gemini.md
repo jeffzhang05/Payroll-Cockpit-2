@@ -78,6 +78,9 @@ This file serves as the definitive source for data boundaries, API payloads, and
 - **System Startup (Backend API + Database)**: `npx cds watch` (Run in root directory)
 - **Frontend Startup**: `cd app/frontend && npm run dev`
 - **Port Definitions**: Frontend via Vite (`http://localhost:5173`), CAP Backend (`http://localhost:4004`)
+- **Local Authentication (Mock Users)**:
+  - **Admin**: Username `alice` / Password `<any or blank>` (Role: `PayrollAdmin`)
+  - **Viewer**: Username `bob` / Password `<any or blank>` (Role: `PayrollViewer`)
 
 **BTP Cloud Deployment (SAP Cloud Foundry):**
 - **Step 1 — BTP Admin Login**: `~/.local/bin/btp login` → server: `https://cli.btp.cloud.sap`
