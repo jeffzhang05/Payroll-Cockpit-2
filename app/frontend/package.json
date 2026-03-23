@@ -11,6 +11,10 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.1",
+    "@ui5/webcomponents": "^2.20.2",
+    "@ui5/webcomponents-fiori": "^2.20.2",
+    "@ui5/webcomponents-icons": "^2.20.2",
+    "@ui5/webcomponents-react": "^2.20.1",
     "lucide-react": "^0.577.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

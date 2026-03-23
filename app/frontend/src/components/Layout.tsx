@@ -4,14 +4,14 @@ import Header from './Header';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
     return (
-        <div className="flex h-screen bg-[#f5f7fa] overflow-hidden">
-            <Sidebar />
-            <main className="flex-1 flex flex-col min-w-0">
-                <Header />
-                <div className="flex-1 overflow-y-auto w-full p-8 relative scroll-smooth">
+        <div style={{ height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column' }}>
+            <Header />
+            <div style={{ display: 'flex', flexGrow: 1, overflow: 'hidden' }}>
+                <Sidebar />
+                <main style={{ flexGrow: 1, overflowY: 'auto', padding: '1rem', backgroundColor: 'var(--sapBackgroundColor)' }}>
                     {children}
-                </div>
-            </main>
+                </main>
+            </div>
         </div>
     );
 }

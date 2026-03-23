@@ -1,7 +1,20 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useAppStore } from '../store';
 import type { Region, OrgUnit } from '../types';
-import { Plus, Search, Building2, Globe2, MapPin, X, Trash2, Edit2, AlertTriangle, Calculator, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { 
+    Title, Button, Table, TableHeaderRow, TableHeaderCell, TableRow, TableCell, 
+    Label, ObjectStatus, FlexBox, FlexBoxJustifyContent, FlexBoxAlignItems, FlexBoxWrap, 
+    Input, Select, Option, Dialog, Icon, MessageStrip
+} from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/add.js';
+import '@ui5/webcomponents-icons/dist/sys-find.js';
+import '@ui5/webcomponents-icons/dist/building.js';
+import '@ui5/webcomponents-icons/dist/globe.js';
+import '@ui5/webcomponents-icons/dist/map-2.js';
+import '@ui5/webcomponents-icons/dist/edit.js';
+import '@ui5/webcomponents-icons/dist/delete.js';
+import '@ui5/webcomponents-icons/dist/shield.js';
+import '@ui5/webcomponents-icons/dist/sys-help-2.js';
 
 interface ValidationRule {
     id: string;
@@ -74,281 +87,220 @@ export default function Config() {
     };
 
     return (
-        <div className="animate-in fade-in duration-500 max-w-7xl mx-auto">
-            <div className="mb-10">
-                <h1 className="text-3xl font-bold text-[#0f1623] tracking-tight">Configuration Console</h1>
-                <p className="text-gray-500 mt-1">Manage system settings, organizational structures, and automation rules.</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', padding: '1rem' }}>
+            <div>
+                <Title level="H1">Configuration Console</Title>
+                <Label style={{ display: 'block', marginTop: '0.5rem' }}>Manage system settings, organizational structures, and automation rules.</Label>
             </div>
 
             {/* Organizational Unit Section */}
-            <div className="flex justify-between items-end mb-6">
-                <div>
-                    <h2 className="text-2xl font-bold text-[#0f1623] tracking-tight flex items-center"><Building2 size={24} className="mr-2 text-indigo-600" /> Organizational Units</h2>
-                    <p className="text-gray-500 mt-1">Manage the hierarchy and structural setup of reporting entities.</p>
-                </div>
-                <button
-                    onClick={() => setShowModal(true)}
-                    className="px-5 py-2.5 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg font-bold flex items-center transition-all min-w-[160px] justify-center"
-                >
-                    <Plus size={18} className="mr-2" /> Add Org Unit
-                </button>
-            </div>
-
-            <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden mb-10">
-
-                {/* Filters Row */}
-                <div className="p-5 border-b border-gray-100 bg-gray-50/50 flex space-x-6">
-                    <div className="flex-1 max-w-xs">
-                        <label className="block text-[11px] font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Filter By Region</label>
-                        <select
-                            className="w-full bg-white border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 outline-none shadow-sm"
-                            value={filterRegion}
-                            title="Filter by Region"
-                            onChange={e => setFilterRegion(e.target.value)}
-                        >
-                            <option value="All Regions">All Regions</option>
-                            <option value="Americas">Americas</option>
-                            <option value="EMEA">EMEA</option>
-                            <option value="APAC">APAC</option>
-                        </select>
+            <div>
+                <FlexBox justifyContent={FlexBoxJustifyContent.SpaceBetween} alignItems={FlexBoxAlignItems.End} style={{ marginBottom: '1rem' }} wrap={FlexBoxWrap.Wrap}>
+                    <div>
+                        <FlexBox alignItems={FlexBoxAlignItems.Center} style={{ gap: '0.5rem' }}>
+                            <Icon name="building" style={{ color: 'var(--sapBrandColor)', fontSize: '1.5rem' }} />
+                            <Title level="H2">Organizational Units</Title>
+                        </FlexBox>
+                        <Label style={{ display: 'block', marginTop: '0.5rem' }}>Manage the hierarchy and structural setup of reporting entities.</Label>
                     </div>
-                    <div className="flex-1 max-w-md relative">
-                        <label className="block text-[11px] font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Search Legal Entity</label>
-                        <div className="relative">
-                            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-                                <Search size={16} />
-                            </div>
-                            <input
-                                type="text"
-                                className="bg-white border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2 shadow-sm transition-all outline-none"
-                                placeholder="Type to search..."
+                    <Button icon="add" design="Emphasized" onClick={() => setShowModal(true)}>Add Org Unit</Button>
+                </FlexBox>
+
+                <div style={{ backgroundColor: 'var(--sapGroup_ContentBackground)', borderRadius: '8px', boxShadow: 'var(--sapContent_Shadow0)' }}>
+                    <FlexBox style={{ padding: '1rem', backgroundColor: 'var(--sapList_HeaderBackground)', gap: '1.5rem' }} wrap={FlexBoxWrap.Wrap}>
+                        <FlexBox direction="Column" style={{ flex: 1, minWidth: '200px' }}>
+                            <Label style={{ marginBottom: '0.5rem', fontWeight: 'bold' }}>Filter By Region</Label>
+                            <Select value={filterRegion} onChange={(e) => setFilterRegion(e.detail.selectedOption.textContent || 'All Regions')}>
+                                <Option>All Regions</Option>
+                                <Option>Americas</Option>
+                                <Option>EMEA</Option>
+                                <Option>APAC</Option>
+                            </Select>
+                        </FlexBox>
+                        <FlexBox direction="Column" style={{ flex: 2, minWidth: '250px' }}>
+                            <Label style={{ marginBottom: '0.5rem', fontWeight: 'bold' }}>Search Legal Entity</Label>
+                            <Input 
+                                icon={<Icon name="sys-find" />} 
+                                placeholder="Type to search..." 
                                 value={searchEntity}
-                                onChange={(e) => setSearchEntity(e.target.value)}
+                                onInput={(e) => setSearchEntity((e.target as unknown as HTMLInputElement).value)}
+                                style={{ width: '100%' }}
                             />
-                        </div>
-                    </div>
-                </div>
+                        </FlexBox>
+                    </FlexBox>
 
-                {/* Grid */}
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left text-gray-700">
-                        <thead className="text-xs text-gray-500 uppercase bg-white border-b border-gray-100">
-                            <tr>
-                                <th className="px-6 py-4 font-semibold uppercase tracking-wider">Region</th>
-                                <th className="px-6 py-4 font-semibold uppercase tracking-wider">Country</th>
-                                <th className="px-6 py-4 font-semibold uppercase tracking-wider">Legal Entity</th>
-                                <th className="px-6 py-4 font-semibold uppercase tracking-wider">Reporting Unit</th>
-                                <th className="px-6 py-4 font-semibold uppercase tracking-wider text-right w-32">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-50">
-                            {filteredUnits.length === 0 && (
-                                <tr><td colSpan={5} className="p-8 text-center text-gray-500">No organizations found.</td></tr>
-                            )}
-                            {filteredUnits.map(unit => (
-                                <tr key={unit.id} className="hover:bg-gray-50/50 transition-colors">
-                                    <td className="px-6 py-4 font-medium flex items-center text-gray-600"><Globe2 size={16} className="mr-2 text-blue-400" /> {unit.region}</td>
-                                    <td className="px-6 py-4 font-medium text-gray-600"><div className="flex items-center"><MapPin size={16} className="mr-2 text-red-400" /> {unit.country}</div></td>
-                                    <td className="px-6 py-4 font-bold text-gray-900 flex items-center"><Building2 size={16} className="mr-2 text-gray-400" /> {unit.legalEntity}</td>
-                                    <td className="px-6 py-4 text-gray-600 font-medium">{unit.reportingUnit}</td>
-                                    <td className="px-6 py-4 text-right">
-                                        <div className="flex items-center justify-end space-x-3">
-                                            <button className="text-blue-600 hover:text-blue-800 font-medium flex items-center text-xs"><Edit2 size={12} className="mr-1" /> Edit</button>
-                                            <span className="text-gray-300">|</span>
-                                            <button onClick={() => handleDelete(unit.id)} className="text-red-500 hover:text-red-700 font-medium flex items-center text-xs"><Trash2 size={12} className="mr-1" /> Deactivate</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                    <Table>
+                        <TableHeaderRow slot="headerRow">
+                            <TableHeaderCell><Label>Region</Label></TableHeaderCell>
+                            <TableHeaderCell><Label>Country</Label></TableHeaderCell>
+                            <TableHeaderCell><Label>Legal Entity</Label></TableHeaderCell>
+                            <TableHeaderCell><Label>Reporting Unit</Label></TableHeaderCell>
+                            <TableHeaderCell><Label style={{ textAlign: 'right', display: 'block', width: '100%' }}>Actions</Label></TableHeaderCell>
+                        </TableHeaderRow>
+                        {filteredUnits.length === 0 && (
+                            <TableRow>
+                                <TableCell><Label>No organizations found.</Label></TableCell>
+                            </TableRow>
+                        )}
+                        {filteredUnits.map(unit => (
+                            <TableRow key={unit.id}>
+                                <TableCell>
+                                    <FlexBox alignItems={FlexBoxAlignItems.Center} style={{ gap: '0.5rem' }}>
+                                        <Icon name="globe" style={{ color: 'var(--sapInformationColor)' }} />
+                                        <Label>{unit.region}</Label>
+                                    </FlexBox>
+                                </TableCell>
+                                <TableCell>
+                                    <FlexBox alignItems={FlexBoxAlignItems.Center} style={{ gap: '0.5rem' }}>
+                                        <Icon name="map-2" style={{ color: 'var(--sapNegativeColor)' }} />
+                                        <Label>{unit.country}</Label>
+                                    </FlexBox>
+                                </TableCell>
+                                <TableCell>
+                                    <FlexBox alignItems={FlexBoxAlignItems.Center} style={{ gap: '0.5rem' }}>
+                                        <Icon name="building" style={{ color: 'var(--sapContent_NonInteractiveIconColor)' }} />
+                                        <Label style={{ fontWeight: 'bold' }}>{unit.legalEntity}</Label>
+                                    </FlexBox>
+                                </TableCell>
+                                <TableCell><Label>{unit.reportingUnit}</Label></TableCell>
+                                <TableCell>
+                                    <FlexBox justifyContent={FlexBoxJustifyContent.End} style={{ gap: '0.5rem' }}>
+                                        <Button icon="edit" design="Transparent" title="Edit" />
+                                        <Button icon="delete" design="Transparent" title="Deactivate" onClick={() => handleDelete(unit.id)} style={{ color: 'var(--sapNegativeColor)' }} />
+                                    </FlexBox>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </Table>
                 </div>
             </div>
 
             {/* Validation Rules Section */}
-            <div className="flex justify-between items-end mb-6 mt-12">
-                <div>
-                    <h2 className="text-2xl font-bold text-[#0f1623] tracking-tight flex items-center"><ShieldAlert size={24} className="mr-2 text-indigo-600" /> Payroll Validation Rules</h2>
-                    <p className="text-gray-500 mt-1">Configure automated logical checks applied during payroll data import.</p>
-                </div>
-                <button
-                    onClick={() => setShowRuleModal(true)}
-                    className="px-5 py-2.5 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg font-bold flex items-center transition-all min-w-[160px] justify-center"
-                >
-                    <Plus size={18} className="mr-2" /> Add Rule
-                </button>
-            </div>
-
-            <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden mb-12">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left text-gray-700">
-                        <thead className="text-xs text-gray-500 uppercase bg-gray-50/50 border-b border-gray-100">
-                            <tr>
-                                <th className="px-6 py-4 font-semibold uppercase tracking-wider">Rule ID</th>
-                                <th className="px-6 py-4 font-semibold uppercase tracking-wider">Payroll Field</th>
-                                <th className="px-6 py-4 font-semibold uppercase tracking-wider text-center">Logical Operator</th>
-                                <th className="px-6 py-4 font-semibold uppercase tracking-wider">Calculation Value</th>
-                                <th className="px-6 py-4 font-semibold uppercase tracking-wider text-center">Status</th>
-                                <th className="px-6 py-4 font-semibold uppercase tracking-wider text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-50">
-                            {rules.map(rule => (
-                                <tr key={rule.id} className="hover:bg-gray-50/50 transition-colors">
-                                    <td className="px-6 py-4 font-bold text-gray-900">{rule.id}</td>
-                                    <td className="px-6 py-4 font-semibold text-indigo-900 flex items-center"><Calculator size={16} className="mr-2 text-indigo-400" /> {rule.field}</td>
-                                    <td className="px-6 py-4 text-center">
-                                        <span className="bg-gray-100 border border-gray-200 text-gray-800 text-xs font-black px-2.5 py-1 rounded shadow-sm">{rule.operator}</span>
-                                    </td>
-                                    <td className="px-6 py-4 font-bold text-gray-700">{rule.value}</td>
-                                    <td className="px-6 py-4 text-center">
-                                        {rule.isActive ?
-                                            <span className="inline-flex items-center text-green-700 text-xs font-bold bg-green-50 border border-green-200 px-2 py-0.5 rounded-full"><CheckCircle2 size={12} className="mr-1" /> Active</span> :
-                                            <span className="inline-flex items-center text-gray-500 text-xs font-bold bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-full">Inactive</span>
-                                        }
-                                    </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <div className="flex items-center justify-end space-x-3">
-                                            <button onClick={() => toggleRuleActive(rule.id)} className={`${rule.isActive ? 'text-orange-500 hover:text-orange-700' : 'text-green-600 hover:text-green-800'} font-medium text-xs`}>
-                                                {rule.isActive ? 'Disable' : 'Enable'}
-                                            </button>
-                                            <span className="text-gray-300">|</span>
-                                            <button onClick={() => deleteRule(rule.id)} className="text-red-500 hover:text-red-700 font-medium flex items-center text-xs"><Trash2 size={12} className="mr-1" /> Delete</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            {/* Modal */}
-            {showModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in">
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-                        <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                            <h2 className="text-lg font-bold text-gray-900">Add Org Unit</h2>
-                            <button onClick={() => setShowModal(false)} title="Close Modal" className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
-                        </div>
-
-                        <div className="p-6 space-y-4">
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">Region</label>
-                                <select className="w-full border border-gray-200 rounded-lg p-2.5 text-sm bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-colors"
-                                    value={newUnit.region} title="Region" onChange={e => setNewUnit({ ...newUnit, region: e.target.value as Region })}
-                                >
-                                    <option value="Americas">Americas</option>
-                                    <option value="EMEA">EMEA</option>
-                                    <option value="APAC">APAC</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">Country</label>
-                                <input type="text" className="w-full border border-gray-200 rounded-lg p-2.5 text-sm bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-colors" placeholder="e.g. France"
-                                    value={newUnit.country} onChange={e => setNewUnit({ ...newUnit, country: e.target.value })}
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">Legal Entity</label>
-                                <input type="text" className="w-full border border-gray-200 rounded-lg p-2.5 text-sm bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-colors" placeholder="e.g. Acme France SAS"
-                                    value={newUnit.legalEntity} onChange={e => setNewUnit({ ...newUnit, legalEntity: e.target.value })}
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">Reporting Unit</label>
-                                <input type="text" className="w-full border border-gray-200 rounded-lg p-2.5 text-sm bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-colors" placeholder="e.g. Paris Office"
-                                    value={newUnit.reportingUnit} onChange={e => setNewUnit({ ...newUnit, reportingUnit: e.target.value })}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="p-5 border-t border-gray-100 bg-gray-50 flex justify-end space-x-3">
-                            <button onClick={() => setShowModal(false)} className="px-5 py-2 font-medium text-gray-600 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
-                            <button
-                                onClick={handleSave}
-                                disabled={!isFormValid}
-                                className={`px-5 py-2 font-bold text-white rounded-lg shadow-sm transition-all ${isFormValid ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-300 cursor-not-allowed'}`}
-                            >
-                                Save
-                            </button>
-                        </div>
+            <div style={{ marginTop: '1rem' }}>
+                <FlexBox justifyContent={FlexBoxJustifyContent.SpaceBetween} alignItems={FlexBoxAlignItems.End} style={{ marginBottom: '1rem' }} wrap={FlexBoxWrap.Wrap}>
+                    <div>
+                        <FlexBox alignItems={FlexBoxAlignItems.Center} style={{ gap: '0.5rem' }}>
+                            <Icon name="shield" style={{ color: 'var(--sapBrandColor)', fontSize: '1.5rem' }} />
+                            <Title level="H2">Payroll Validation Rules</Title>
+                        </FlexBox>
+                        <Label style={{ display: 'block', marginTop: '0.5rem' }}>Configure automated logical checks applied during payroll data import.</Label>
                     </div>
+                    <Button icon="add" design="Emphasized" onClick={() => setShowRuleModal(true)}>Add Rule</Button>
+                </FlexBox>
+
+                <div style={{ backgroundColor: 'var(--sapGroup_ContentBackground)', borderRadius: '8px', boxShadow: 'var(--sapContent_Shadow0)' }}>
+                    <Table>
+                        <TableHeaderRow slot="headerRow">
+                            <TableHeaderCell><Label>Rule ID</Label></TableHeaderCell>
+                            <TableHeaderCell><Label>Payroll Field</Label></TableHeaderCell>
+                            <TableHeaderCell><Label>Logical Operator</Label></TableHeaderCell>
+                            <TableHeaderCell><Label>Calculation Value</Label></TableHeaderCell>
+                            <TableHeaderCell><Label>Status</Label></TableHeaderCell>
+                            <TableHeaderCell><Label style={{ textAlign: 'right', display: 'block', width: '100%' }}>Actions</Label></TableHeaderCell>
+                        </TableHeaderRow>
+                        {rules.map(rule => (
+                            <TableRow key={rule.id}>
+                                <TableCell><Label style={{ fontWeight: 'bold' }}>{rule.id}</Label></TableCell>
+                                <TableCell>
+                                    <FlexBox alignItems={FlexBoxAlignItems.Center} style={{ gap: '0.5rem' }}>
+                                        <Icon name="sys-help-2" style={{ color: 'var(--sapInformationColor)' }} />
+                                        <Label style={{ fontWeight: 'bold', color: 'var(--sapBrandColor)' }}>{rule.field}</Label>
+                                    </FlexBox>
+                                </TableCell>
+                                <TableCell>
+                                    <Label style={{ padding: '0.25rem 0.5rem', backgroundColor: 'var(--sapButton_Background)', borderRadius: '4px', fontWeight: 'bold' }}>{rule.operator}</Label>
+                                </TableCell>
+                                <TableCell><Label style={{ fontWeight: 'bold' }}>{rule.value}</Label></TableCell>
+                                <TableCell>
+                                    <ObjectStatus state={rule.isActive ? 'Positive' : 'None'} inverted>
+                                        {rule.isActive ? 'Active' : 'Inactive'}
+                                    </ObjectStatus>
+                                </TableCell>
+                                <TableCell>
+                                    <FlexBox justifyContent={FlexBoxJustifyContent.End} style={{ gap: '0.5rem' }}>
+                                        <Button design="Transparent" onClick={() => toggleRuleActive(rule.id)} style={{ color: rule.isActive ? 'var(--sapWarningColor)' : 'var(--sapPositiveColor)' }}>
+                                            {rule.isActive ? 'Disable' : 'Enable'}
+                                        </Button>
+                                        <Button icon="delete" design="Transparent" title="Delete" onClick={() => deleteRule(rule.id)} style={{ color: 'var(--sapNegativeColor)' }} />
+                                    </FlexBox>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </Table>
                 </div>
-            )}
+            </div>
+
+            {/* Org Unit Modal */}
+            <Dialog open={showModal} headerText="Add Org Unit" onClose={() => setShowModal(false)}>
+                <div style={{ minWidth: '350px', display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1rem 0' }}>
+                    <FlexBox direction="Column" style={{ gap: '0.5rem' }}>
+                        <Label>Region</Label>
+                        <Select value={newUnit.region} onChange={e => setNewUnit({ ...newUnit, region: e.detail.selectedOption.textContent as Region })}>
+                            <Option>Americas</Option>
+                            <Option>EMEA</Option>
+                            <Option>APAC</Option>
+                        </Select>
+                    </FlexBox>
+                    <FlexBox direction="Column" style={{ gap: '0.5rem' }}>
+                        <Label required>Country</Label>
+                        <Input value={newUnit.country} placeholder="e.g. France" onInput={e => setNewUnit({ ...newUnit, country: (e.target as unknown as HTMLInputElement).value })} />
+                    </FlexBox>
+                    <FlexBox direction="Column" style={{ gap: '0.5rem' }}>
+                        <Label required>Legal Entity</Label>
+                        <Input value={newUnit.legalEntity} placeholder="e.g. Acme France SAS" onInput={e => setNewUnit({ ...newUnit, legalEntity: (e.target as unknown as HTMLInputElement).value })} />
+                    </FlexBox>
+                    <FlexBox direction="Column" style={{ gap: '0.5rem' }}>
+                        <Label required>Reporting Unit</Label>
+                        <Input value={newUnit.reportingUnit} placeholder="e.g. Paris Office" onInput={e => setNewUnit({ ...newUnit, reportingUnit: (e.target as unknown as HTMLInputElement).value })} />
+                    </FlexBox>
+                </div>
+                <div slot="footer" style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', padding: '0.5rem 0', gap: '0.5rem' }}>
+                    <Button design="Transparent" onClick={() => setShowModal(false)}>Cancel</Button>
+                    <Button design="Emphasized" onClick={handleSave} disabled={!isFormValid}>Save</Button>
+                </div>
+            </Dialog>
 
             {/* Rule Modal */}
-            {showRuleModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in">
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-                        <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-indigo-50/50">
-                            <h2 className="text-lg font-bold text-indigo-950 flex items-center"><Calculator size={18} className="mr-2 text-indigo-600" /> Configure Validation Rule</h2>
-                            <button onClick={() => setShowRuleModal(false)} title="Close Modal" className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
-                        </div>
-
-                        <div className="p-6 space-y-5">
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">Payroll Field</label>
-                                <select className="w-full border border-gray-200 rounded-lg p-2.5 text-sm bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-colors"
-                                    value={newRule.field} onChange={e => setNewRule({ ...newRule, field: e.target.value })}
-                                    title="Payroll Field"
-                                >
-                                    <option value="Net Pay">Net Pay</option>
-                                    <option value="Gross Pay">Gross Pay</option>
-                                    <option value="Overtime Hours">Overtime Hours</option>
-                                    <option value="Base Salary">Base Salary</option>
-                                    <option value="Deductions">Deductions</option>
-                                    <option value="Bank Details">Bank Details</option>
-                                    <option value="Cost Center">Cost Center</option>
-                                </select>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Logical Operator</label>
-                                    <select className="w-full border border-gray-200 rounded-lg p-2.5 text-sm bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-colors font-mono font-bold"
-                                        value={newRule.operator} onChange={e => setNewRule({ ...newRule, operator: e.target.value })}
-                                        title="Logical Operator"
-                                    >
-                                        <option value=">">&gt; (Greater Than)</option>
-                                        <option value="<">&lt; (Less Than)</option>
-                                        <option value="==">== (Equals)</option>
-                                        <option value="!=">!= (Not Equal)</option>
-                                        <option value="Missing">Is Missing (Null)</option>
-                                        <option value="Exceed">Exceeds Field</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Value / Target</label>
-                                    <input type="text" className="w-full border border-gray-200 rounded-lg p-2.5 text-sm bg-gray-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-colors font-bold"
-                                        placeholder="e.g. 50, Gross Pay"
-                                        value={newRule.value} onChange={e => setNewRule({ ...newRule, value: e.target.value })}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="bg-yellow-50 text-yellow-800 p-3 rounded-lg text-xs font-medium border border-yellow-100 flex items-start">
-                                <AlertTriangle size={14} className="mr-2 flex-shrink-0 mt-0.5 text-yellow-600" />
-                                <p>If this rule condition is met during the Data Import phase, a Data Quality (DQ) Exception will be flagged for the affected employee.</p>
-                            </div>
-                        </div>
-
-                        <div className="p-5 border-t border-gray-100 bg-gray-50 flex justify-end space-x-3">
-                            <button onClick={() => setShowRuleModal(false)} className="px-5 py-2 font-medium text-gray-600 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
-                            <button
-                                onClick={handleSaveRule}
-                                disabled={!newRule.field || !newRule.operator}
-                                className={`px-5 py-2 font-bold text-white rounded-lg shadow-sm transition-all ${newRule.field && newRule.operator ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-gray-300 cursor-not-allowed'}`}
-                            >
-                                Add Rule
-                            </button>
-                        </div>
-                    </div>
+            <Dialog open={showRuleModal} headerText="Configure Validation Rule" onClose={() => setShowRuleModal(false)}>
+                <div style={{ minWidth: '350px', display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1rem 0' }}>
+                    <FlexBox direction="Column" style={{ gap: '0.5rem' }}>
+                        <Label required>Payroll Field</Label>
+                        <Select value={newRule.field} onChange={e => setNewRule({ ...newRule, field: e.detail.selectedOption.textContent || '' })}>
+                            <Option>Net Pay</Option>
+                            <Option>Gross Pay</Option>
+                            <Option>Overtime Hours</Option>
+                            <Option>Base Salary</Option>
+                            <Option>Deductions</Option>
+                            <Option>Bank Details</Option>
+                            <Option>Cost Center</Option>
+                        </Select>
+                    </FlexBox>
+                    <FlexBox style={{ gap: '1rem' }} wrap={FlexBoxWrap.Wrap}>
+                        <FlexBox direction="Column" style={{ flex: 1, gap: '0.5rem' }}>
+                            <Label required>Logical Operator</Label>
+                            <Select value={newRule.operator} onChange={e => setNewRule({ ...newRule, operator: e.detail.selectedOption.textContent?.split(' ')[0] || '' })}>
+                                <Option>&gt; (Greater Than)</Option>
+                                <Option>&lt; (Less Than)</Option>
+                                <Option>== (Equals)</Option>
+                                <Option>!= (Not Equal)</Option>
+                                <Option>Missing (Is Missing/Null)</Option>
+                                <Option>Exceed (Exceeds Field)</Option>
+                            </Select>
+                        </FlexBox>
+                        <FlexBox direction="Column" style={{ flex: 1, gap: '0.5rem' }}>
+                            <Label required>Value / Target</Label>
+                            <Input value={newRule.value} placeholder="e.g. 50, Gross Pay" onInput={e => setNewRule({ ...newRule, value: (e.target as unknown as HTMLInputElement).value })} />
+                        </FlexBox>
+                    </FlexBox>
+                    <MessageStrip design="Critical" hideCloseButton>
+                        If this rule condition is met during the Data Import phase, a Data Quality (DQ) Exception will be flagged for the affected employee.
+                    </MessageStrip>
                 </div>
-            )}
+                <div slot="footer" style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', padding: '0.5rem 0', gap: '0.5rem' }}>
+                    <Button design="Transparent" onClick={() => setShowRuleModal(false)}>Cancel</Button>
+                    <Button design="Emphasized" onClick={handleSaveRule} disabled={!newRule.field || !newRule.operator}>Add Rule</Button>
+                </div>
+            </Dialog>
         </div>
     );
 }

@@ -85,12 +85,22 @@ This file serves as the definitive source for data boundaries, API payloads, and
 **BTP Cloud Deployment (SAP Cloud Foundry):**
 - **Step 1 — BTP Admin Login**: `~/.local/bin/btp login` → server: `https://cli.btp.cloud.sap`
 - **Step 2 — CF Runtime Login**: `~/.local/bin/cf login -a https://api.cf.us10-001.hana.ondemand.com --sso`
-- **Step 3 — Build MTA Archive**: `npx mbt build` → outputs `mta_archives/payroll-cockpit_1.0.0.mtar`
-- **Step 4 — Deploy to BTP**: `~/.local/bin/cf deploy mta_archives/payroll-cockpit_1.0.0.mtar`
+- **Step 3 — Build Frontend**: `cd app/frontend && npm install && npm run build && rm -rf ../../approuter/public/* && cp -r dist/* ../../approuter/public/`
+- **Step 4 — Build MTA Archive**: `npm install mbt && ./node_modules/.bin/mbt build` → outputs `mta_archives/payroll-cockpit_1.0.0.mtar`
+- **Step 5 — Deploy to BTP**: `~/.local/bin/cf deploy mta_archives/payroll-cockpit_1.0.0.mtar -f`
 
 **Live BTP URLs (Trial — us10 region):**
 - **Frontend**: `https://48784fe5trial-dev-payroll-cockpit.cfapps.us10-001.hana.ondemand.com`
 - **CAP API**: `https://48784fe5trial-dev-payroll-cockpit-srv.cfapps.us10-001.hana.ondemand.com`
+
+**Waking Up BTP Trial Environment:**
+SAP BTP Trial automatically suspends applications nightly. If the URLs return a 404, restart them:
+1. Log into CF: `~/.local/bin/cf login -a https://api.cf.us10-001.hana.ondemand.com --sso`
+2. Start Database (HANA Free instance): `~/.local/bin/cf update-service payroll-hana-free -c '{"data":{"serviceStopped":false}}'` (Wait ~5 mins until `cf service payroll-hana-free` shows 'update succeeded')
+3. Start API Server: `~/.local/bin/cf start payroll-cockpit-srv`
+4. Start Approuter: `~/.local/bin/cf start payroll-cockpit`
+
+*(Note: The database is an SAP HANA Free tier instance mapped as `payroll-hana-free` in CF. It MUST be officially running before deploying (`db-deployer` will fail) or manually starting nodes. The UI uses Vite, so `npm run build` must be run locally first before packaging into the MTA!)*
 
 **CLI Tool Locations** (stored in `~/.local/bin/`, not on system PATH by default):
 - `~/.local/bin/btp` — SAP BTP CLI v2.97.0

@@ -8,10 +8,11 @@
     "@sap-cloud-sdk/connectivity": "^4.5.1",
     "@sap-cloud-sdk/http-client": "^4.5.1",
     "@sap/cds": "^9.8.3",
+    "@sap/xssec": "^4",
     "express": "^5.2.1",
     "hdb": "^2.27.1",
-    "puppeteer": "^24.38.0",
-    "@sap/xssec": "^4"
+    "mbt": "^1.2.45",
+    "puppeteer": "^24.38.0"
   },
   "devDependencies": {
     "@cap-js/sqlite": "^2.2.0",

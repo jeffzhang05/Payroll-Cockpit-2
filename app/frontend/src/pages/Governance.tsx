@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useAppStore } from '../store';
-import { SeverityBadge } from '../components/Badge';
-import { RefreshCw, Activity, ShieldAlert, CheckCircle2, AlertTriangle, ArrowRight, Search, SlidersHorizontal, ArrowUpDown, X, ListFilter } from 'lucide-react';
-
+import { Title, Button, Table, TableHeaderRow, TableHeaderCell, TableRow, TableCell, Label, ObjectStatus, FlexBox, FlexBoxJustifyContent, FlexBoxAlignItems, FlexBoxWrap, Input, Select, Option, Dialog, Icon, Card, CardHeader } from '@ui5/webcomponents-react';
+import '@ui5/webcomponents-icons/dist/refresh.js';
+import '@ui5/webcomponents-icons/dist/activity-individual.js';
+import '@ui5/webcomponents-icons/dist/alert.js';
+import '@ui5/webcomponents-icons/dist/shield.js';
+import '@ui5/webcomponents-icons/dist/sys-find.js';
+import '@ui5/webcomponents-icons/dist/sys-help-2.js';
 
 export default function Governance() {
     const { dqIssues, fetchDQIssues, syncDQIssues } = useAppStore();
@@ -57,235 +61,133 @@ export default function Governance() {
             issue.rule.toLowerCase().includes(searchTerm.toLowerCase())
         )
         .sort((a, b) => {
-            // Sort by severity weight
-            const weight = { 'Critical': 4, 'High': 3, 'Medium': 2, 'Low': 1 };
+            const weight: Record<string, number> = { 'Critical': 4, 'High': 3, 'Medium': 2, 'Low': 1 };
             const valA = weight[a.severity] || 0;
             const valB = weight[b.severity] || 0;
             return sortOrder === 'desc' ? valB - valA : valA - valB;
         });
 
+    const getSeverityState = (sev: string) => {
+        if (sev === 'Critical' || sev === 'High') return 'Negative';
+        if (sev === 'Medium') return 'Critical';
+        if (sev === 'Low') return 'Information';
+        return 'None';
+    };
+
     return (
-        <div className="animate-in fade-in duration-500 max-w-7xl mx-auto">
-            <div className="flex justify-between items-end mb-8">
-                <div>
-                    <h1 className="text-3xl font-bold text-[#0f1623] tracking-tight">Data Quality Governance</h1>
-                    <p className="text-gray-500 mt-1">Validate and govern payroll results exported from EC Payroll system.</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', padding: '1rem' }}>
+            <FlexBox justifyContent={FlexBoxJustifyContent.SpaceBetween} alignItems={FlexBoxAlignItems.Center} wrap={FlexBoxWrap.Wrap}>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <Icon name="shield" style={{ width: '2rem', height: '2rem', color: 'var(--sapBrandColor)' }} />
+                    <Title level="H2">Data Quality Governance</Title>
                 </div>
-
-                <button
-                    onClick={handleSync}
+                <Button 
+                    icon="refresh" 
+                    design="Emphasized" 
+                    onClick={handleSync} 
                     disabled={isSyncing}
-                    className="px-5 py-2.5 text-white bg-blue-600 hover:bg-blue-700 shadow-sm rounded-lg font-medium flex items-center transition-all min-w-[190px] justify-center"
                 >
-                    <RefreshCw size={18} className={`mr-2 ${isSyncing ? 'animate-spin' : ''}`} />
                     {isSyncing ? 'Syncing...' : 'Sync from EC Payroll'}
-                </button>
+                </Button>
+            </FlexBox>
+
+            <FlexBox wrap={FlexBoxWrap.Wrap} style={{ gap: '1rem' }} justifyContent={FlexBoxJustifyContent.SpaceBetween}>
+                <Card style={{ flex: '1 1 30%', minWidth: '250px' }}>
+                    <CardHeader titleText="Overall Data Quality" avatar={<Icon name="activity-individual" />} />
+                    <div style={{ padding: '1rem', textAlign: 'center' }}>
+                        <Title level="H1" style={{ fontSize: '3rem', color: 'var(--sapPositiveColor)' }}>{overallScore}%</Title>
+                    </div>
+                </Card>
+
+                <Card style={{ flex: '1 1 30%', minWidth: '250px' }}>
+                    <CardHeader titleText="Active Anomalies" avatar={<Icon name="alert" />} />
+                    <div style={{ padding: '1rem', textAlign: 'center' }}>
+                        <Title level="H1" style={{ fontSize: '3rem', color: 'var(--sapNegativeColor)' }}>{dqIssues.length}</Title>
+                    </div>
+                </Card>
+
+                <Card style={{ flex: '1 1 30%', minWidth: '250px', cursor: 'pointer' }} onClick={() => setShowRulesModal(true)}>
+                    <CardHeader titleText="Validation Rules Active" interactive avatar={<Icon name="sys-help-2" />} />
+                    <div style={{ padding: '1rem', textAlign: 'center' }}>
+                        <Title level="H1" style={{ fontSize: '3rem', color: 'var(--sapInformationColor)' }}>5</Title>
+                    </div>
+                </Card>
+            </FlexBox>
+
+            <div style={{ backgroundColor: 'var(--sapGroup_ContentBackground)', padding: '1rem', borderRadius: '8px', boxShadow: 'var(--sapContent_Shadow0)' }}>
+                <FlexBox justifyContent={FlexBoxJustifyContent.SpaceBetween} alignItems={FlexBoxAlignItems.Center} style={{ marginBottom: '1rem' }} wrap={FlexBoxWrap.Wrap}>
+                    <Title level="H4">Detected Data Anomalies ({filteredAndSortedIssues.length})</Title>
+                    <FlexBox style={{ gap: '1rem' }}>
+                        <Input 
+                            icon={<Icon name="sys-find" />} 
+                            placeholder="Search anomalies..." 
+                            value={searchTerm} 
+                            onInput={(e) => setSearchTerm((e.target as unknown as HTMLInputElement).value)} 
+                        />
+                        <Select value={severityFilter} onChange={(e) => setSeverityFilter(e.detail.selectedOption.textContent || 'All')}>
+                            <Option>All</Option>
+                            <Option>Critical</Option>
+                            <Option>High</Option>
+                            <Option>Medium</Option>
+                            <Option>Low</Option>
+                        </Select>
+                    </FlexBox>
+                </FlexBox>
+
+                <Table>
+                    <TableHeaderRow slot="headerRow">
+                        <TableHeaderCell><Label>Issue ID</Label></TableHeaderCell>
+                        <TableHeaderCell onClick={() => setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')}><Label style={{ cursor: 'pointer', color: 'var(--sapLinkColor)' }}>Severity ↕</Label></TableHeaderCell>
+                        <TableHeaderCell><Label>Violated Rule</Label></TableHeaderCell>
+                        <TableHeaderCell><Label>Type</Label></TableHeaderCell>
+                        <TableHeaderCell><Label>Entity / EMP</Label></TableHeaderCell>
+                        <TableHeaderCell><Label>Description</Label></TableHeaderCell>
+                    </TableHeaderRow>
+                    {filteredAndSortedIssues.map((issue) => (
+                        <TableRow key={issue.id}>
+                            <TableCell><Label style={{ fontWeight: 'bold' }}>{issue.id}</Label></TableCell>
+                            <TableCell><ObjectStatus state={getSeverityState(issue.severity) as any} inverted>{issue.severity}</ObjectStatus></TableCell>
+                            <TableCell><ObjectStatus state="Information" title={`Rule Name: ${getRuleName(issue.rule)}`}>{issue.rule} - {getRuleName(issue.rule)}</ObjectStatus></TableCell>
+                            <TableCell><Label>{issue.type}</Label></TableCell>
+                            <TableCell>
+                                <FlexBox direction="Column">
+                                    <Label style={{ fontWeight: 'bold' }}>{issue.entity}</Label>
+                                    <Label style={{ fontSize: '0.75rem', color: 'var(--sapContent_LabelColor)' }}>{issue.employee}</Label>
+                                </FlexBox>
+                            </TableCell>
+                            <TableCell><Label wrappingType="Normal">{issue.description}</Label></TableCell>
+                        </TableRow>
+                    ))}
+                    {filteredAndSortedIssues.length === 0 && (
+                        <TableRow>
+                            <TableCell><Label>No anomalies found matching your criteria.</Label></TableCell>
+                        </TableRow>
+                    )}
+                </Table>
             </div>
 
-            <div className="grid grid-cols-3 gap-6 mb-10">
-                <div className="bg-emerald-600 rounded-xl p-6 shadow-md border border-emerald-500 flex items-center justify-between group hover:-translate-y-1 hover:shadow-lg transition-all relative overflow-hidden">
-                    <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-emerald-500 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
-                    <div className="flex items-center relative z-10 text-white">
-                        <div className="p-3 bg-white/20 backdrop-blur-sm rounded-lg text-white mr-5 group-hover:rotate-12 transition-transform">
-                            <Activity size={28} />
-                        </div>
-                        <div>
-                            <h3 className="text-sm font-semibold text-emerald-100 tracking-wide uppercase mb-1">Overall Data Quality</h3>
-                            <div className="flex items-baseline space-x-1">
-                                <span className="text-4xl font-black">{overallScore}</span>
-                                <span className="text-xl font-medium text-emerald-200">%</span>
-                            </div>
-                        </div>
-                    </div>
+            <Dialog open={showRulesModal} headerText="Active Validation Rules" onClose={() => setShowRulesModal(false)}>
+                <div style={{ minWidth: '400px', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <Label wrappingType="Normal">The following data quality checking constraints are currently active on incoming payroll runs. To edit or deactivate these rules, please visit the Configuration Console.</Label>
+                    <Table>
+                        <TableHeaderRow slot="headerRow">
+                            <TableHeaderCell><Label>Rule ID</Label></TableHeaderCell>
+                            <TableHeaderCell><Label>Validation Condition</Label></TableHeaderCell>
+                        </TableHeaderRow>
+                        {staticRulesList.map((rule) => (
+                            <TableRow key={rule.id}>
+                                <TableCell><Label style={{ fontWeight: 'bold', color: 'var(--sapLinkColor)' }}>{rule.id}</Label></TableCell>
+                                <TableCell>
+                                    <Label>{rule.field} {rule.operator} {rule.value}</Label>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </Table>
                 </div>
-
-                <div className="bg-amber-600 rounded-xl p-6 shadow-md border border-amber-500 flex items-center justify-between group hover:-translate-y-1 hover:shadow-lg transition-all relative overflow-hidden">
-                    <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-amber-500 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
-                    <div className="flex items-center relative z-10 text-white">
-                        <div className="p-3 bg-white/20 backdrop-blur-sm rounded-lg text-white mr-5 group-hover:rotate-12 transition-transform">
-                            <AlertTriangle size={28} />
-                        </div>
-                        <div>
-                            <h3 className="text-sm font-semibold text-amber-100 tracking-wide uppercase mb-1">Active Anomalies</h3>
-                            <div className="flex items-baseline space-x-2">
-                                <span className="text-4xl font-black">{dqIssues.length}</span>
-                                <span className="text-sm font-medium text-amber-200">Issues</span>
-                            </div>
-                        </div>
-                    </div>
+                <div slot="footer" style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', padding: '0.5rem 0' }}>
+                    <Button design="Emphasized" onClick={() => setShowRulesModal(false)}>Close</Button>
                 </div>
-
-                <div
-                    onClick={() => setShowRulesModal(true)}
-                    className="bg-indigo-600 rounded-xl p-6 shadow-md border border-indigo-500 flex items-center justify-between group hover:-translate-y-1 hover:shadow-lg transition-all cursor-pointer relative overflow-hidden"
-                >
-                    <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-indigo-500 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
-                    <div className="flex items-center relative z-10 text-white">
-                        <div className="p-3 bg-white/20 backdrop-blur-sm rounded-lg text-white mr-5 group-hover:rotate-12 transition-transform">
-                            <ShieldAlert size={28} />
-                        </div>
-                        <div>
-                            <h3 className="text-sm font-semibold text-indigo-100 tracking-wide uppercase mb-1">Validation Rules Active</h3>
-                            <div className="flex items-baseline space-x-2">
-                                <span className="text-4xl font-black">5</span>
-                                <span className="text-sm font-medium text-indigo-200">Rules</span>
-                            </div>
-                        </div>
-                    </div>
-                    <ArrowRight size={24} className="text-white opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 transition-all relative z-10" />
-                </div>
-            </div>
-
-            <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden mb-8">
-                <div className="p-5 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gray-50/50">
-                    <div className="flex items-center space-x-2">
-                        <AlertTriangle size={20} className="text-amber-500" />
-                        <h2 className="text-lg font-bold text-gray-800">Detected Data Anomalies</h2>
-                        <span className="bg-gray-200 text-gray-700 text-xs font-bold px-2 py-0.5 rounded-full ml-2">{filteredAndSortedIssues.length}</span>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                        <div className="relative">
-                            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                            <input
-                                type="text"
-                                placeholder="Search entity, type, or rule..."
-                                className="pl-9 pr-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all w-64"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
-
-                        <div className="flex items-center bg-white border border-gray-200 rounded-lg overflow-hidden">
-                            <div className="px-3 py-1.5 bg-gray-50 border-r border-gray-200 text-gray-500 flex items-center">
-                                <SlidersHorizontal size={14} />
-                            </div>
-                            <select
-                                className="px-3 py-1.5 text-sm outline-none font-medium text-gray-700 bg-transparent"
-                                value={severityFilter}
-                                title="Severity Filter"
-                                onChange={(e) => setSeverityFilter(e.target.value)}
-                            >
-                                <option value="All">All Severities</option>
-                                <option value="Critical">Critical Only</option>
-                                <option value="High">High Only</option>
-                                <option value="Medium">Medium Only</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left text-gray-700">
-                        <thead className="text-xs text-gray-500 uppercase bg-gray-50/80 border-b border-gray-100">
-                            <tr>
-                                <th className="px-6 py-4 font-semibold uppercase tracking-wider">Issue ID</th>
-                                <th className="px-6 py-4 font-semibold uppercase tracking-wider cursor-pointer hover:text-gray-900 transition-colors" onClick={() => setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')}>
-                                    <div className="flex items-center">Severity <ArrowUpDown size={12} className="ml-1" /></div>
-                                </th>
-                                <th className="px-6 py-4 font-semibold uppercase tracking-wider">Violated Rule</th>
-                                <th className="px-6 py-4 font-semibold uppercase tracking-wider">Type</th>
-                                <th className="px-6 py-4 font-semibold uppercase tracking-wider">Entity / EMP</th>
-                                <th className="px-6 py-4 font-semibold uppercase tracking-wider w-[35%]">Description</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-50">
-                            {filteredAndSortedIssues.map((issue) => (
-                                <tr key={issue.id} className="bg-white hover:bg-gray-50/80 transition-colors">
-                                    <td className="px-6 py-4 font-medium text-gray-900">{issue.id}</td>
-                                    <td className="px-6 py-4"><SeverityBadge severity={issue.severity} /></td>
-                                    <td className="px-6 py-4">
-                                        <span className="bg-indigo-50 border border-indigo-100 text-indigo-700 font-bold px-2.5 py-1 rounded shadow-sm text-xs" title={`Rule Name: ${getRuleName(issue.rule)}`}>
-                                            {issue.rule}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 font-semibold text-gray-700">{issue.type}</td>
-                                    <td className="px-6 py-4">
-                                        <span className="font-bold text-gray-900 block">{issue.entity}</span>
-                                        <span className="text-xs text-gray-500">{issue.employee}</span>
-                                    </td>
-                                    <td className="px-6 py-4 text-gray-600">{issue.description}</td>
-                                </tr>
-                            ))}
-
-                            {filteredAndSortedIssues.length === 0 && (
-                                <tr>
-                                    <td colSpan={6} className="px-6 py-12 text-center bg-gray-50">
-                                        <div className="flex flex-col justify-center items-center text-gray-500 space-y-2">
-                                            {dqIssues.length === 0 ? (
-                                                <>
-                                                    <CheckCircle2 size={32} className="text-green-500" />
-                                                    <span className="font-medium text-lg text-green-700">No anomalies found. Data quality is optimal!</span>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Search size={32} className="text-gray-300" />
-                                                    <span className="font-medium">No results match your search or filter configuration.</span>
-                                                </>
-                                            )}
-                                        </div>
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            {/* Validation Rules Preview Modal */}
-            {showRulesModal && (
-                <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex justify-center items-center z-50 p-4 animate-in fade-in duration-200">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[90vh]">
-                        <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-indigo-50/30">
-                            <div className="flex items-center space-x-3">
-                                <ListFilter className="text-indigo-600" size={24} />
-                                <h2 className="text-xl font-bold text-gray-900">Active Validation Rules</h2>
-                            </div>
-                            <button title="Close Rules Preview" onClick={() => setShowRulesModal(false)} className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-full transition-colors">
-                                <X size={20} />
-                            </button>
-                        </div>
-
-                        <div className="p-6 overflow-y-auto">
-                            <p className="text-sm text-gray-500 mb-6">
-                                The following data quality checking constraints are currently active on incoming payroll runs.
-                                <br />Note: To edit or deactivate these rules, please visit the <b>Configuration Console</b>.
-                            </p>
-
-                            <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-                                <table className="w-full text-sm text-left text-gray-600">
-                                    <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-200">
-                                        <tr>
-                                            <th className="px-5 py-3 font-semibold">Rule ID</th>
-                                            <th className="px-5 py-3 font-semibold">Validation Condition</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-100 bg-white">
-                                        {staticRulesList.map((rule) => (
-                                            <tr key={rule.id} className="hover:bg-gray-50 transition-colors">
-                                                <td className="px-5 py-3.5 font-bold text-indigo-700">{rule.id}</td>
-                                                <td className="px-5 py-3.5">
-                                                    <div className="flex items-center space-x-2">
-                                                        <span className="font-semibold text-gray-800 bg-gray-100 px-2 py-0.5 rounded text-xs">{rule.field}</span>
-                                                        <span className="text-indigo-600 font-bold">{rule.operator}</span>
-                                                        <span className="font-semibold text-gray-800 bg-amber-50 border border-amber-100 text-amber-800 px-2 py-0.5 rounded text-xs">{rule.value}</span>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end">
-                            <button onClick={() => setShowRulesModal(false)} className="px-5 py-2 text-gray-700 font-medium hover:bg-gray-200 rounded-lg transition-colors">
-                                Close Preview
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            </Dialog>
         </div>
     );
 }
